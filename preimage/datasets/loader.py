@@ -8,7 +8,7 @@ from os.path import join
 import numpy
 
 
-class StructedOutputDataset:
+class StructuredOutputDataset:
     def __init__(self, X, Y):
         self.X = X
         self.Y = Y
@@ -25,8 +25,8 @@ def load_ocr_letters(fold_id=0):
     data = __load_gz_pickle_file('ocrletters.pickle.gz')
     train_indexes = numpy.where(data['fold_ids'] == fold_id)
     test_indexes = numpy.where(data['fold_ids'] != fold_id)
-    train_dataset = StructedOutputDataset(data['X'][train_indexes], data['y'][train_indexes])
-    test_dataset = StructedOutputDataset(data['X'][test_indexes], data['y'][test_indexes])
+    train_dataset = StructuredOutputDataset(data['X'][train_indexes], data['y'][train_indexes])
+    test_dataset = StructuredOutputDataset(data['X'][test_indexes], data['y'][test_indexes])
     return train_dataset, test_dataset
 
 
