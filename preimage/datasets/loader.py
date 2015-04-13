@@ -2,6 +2,7 @@ from __future__ import print_function
 __author__ = 'amelie'
 
 import pickle
+import gzip
 from os.path import dirname
 from os.path import join
 
@@ -22,7 +23,7 @@ class StandardDataset:
 
 
 def load_ocr_letters(fold_id=0):
-    data = __load_pickle_file('ocrletters.pickle')
+    data = __load_gz_pickle_file('ocrletters.pickle.gz')
     train_indexes = numpy.where(data['fold_ids'] == fold_id)
     test_indexes = numpy.where(data['fold_ids'] != fold_id)
     train_dataset = StructedOutputDataset(data['X'][train_indexes], data['y'][train_indexes])
@@ -30,10 +31,10 @@ def load_ocr_letters(fold_id=0):
     return train_dataset, test_dataset
 
 
-def __load_pickle_file(file_name):
+def __load_gz_pickle_file(file_name):
     module_path = dirname(__file__)
-    data_file = open(join(module_path, file_name), 'rb')
-    data = pickle.load(data_file)
+    gzip_reader = gzip.open(join(module_path, file_name), 'rb')
+    data = pickle.loads(gzip_reader.read())
     return data
 
 
@@ -49,3 +50,10 @@ def __load_peptide_dataset(file_name):
     data = __load_pickle_file(file_name)
     train_dataset = StandardDataset(data['X'], data['y'])
     return train_dataset
+
+
+def __load_pickle_file(file_name):
+    module_path = dirname(__file__)
+    data_file = open(join(module_path, file_name), 'rb')
+    data = pickle.load(data_file)
+    return data
