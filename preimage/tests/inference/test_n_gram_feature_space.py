@@ -2,12 +2,12 @@ __author__ = 'amelie'
 
 import unittest2
 import numpy.testing
-from mock import patch, MagicMock
+from mock import patch
 
 from preimage.inference.n_gram_feature_space import NGramFeatureSpace
+from preimage.exceptions.n_gram import InvalidNGramError
 
 
-# Todo add test on bad constructor value : n <=0
 class TestNGramFeatureSpace(unittest2.TestCase):
     def setUp(self):
         self.alphabet = ['a', 'b']
@@ -56,10 +56,10 @@ class TestNGramFeatureSpace(unittest2.TestCase):
 
         numpy.testing.assert_array_equal(dense_feature_space, self.abb_abaaa_two_gram_feature_space)
 
-    def test_two_gram_not_in_alphabet_n_gram_feature_space_raises_value_error(self):
+    def test_two_gram_not_in_alphabet_n_gram_feature_space_raises_error(self):
         self.n_gram_to_index_patch.start().return_value = self.two_gram_to_index_without_bb
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidNGramError):
             NGramFeatureSpace(n=2, alphabet=self.alphabet, Y=self.abb)
 
 

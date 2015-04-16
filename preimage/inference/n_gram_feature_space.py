@@ -4,11 +4,15 @@ from collections import Counter
 
 import numpy
 from scipy.sparse import csr_matrix
+
 from preimage.utils.alphabet import get_n_gram_to_index
+from preimage.exceptions.n_gram import InvalidNGramError
+
 
 # Sparse matrix representation of the n_grams in each word (y)
 class NGramFeatureSpace:
     def __init__(self, n, alphabet, Y):
+        n = int(n)
         n_gram_to_index = get_n_gram_to_index(alphabet, n)
         self._N_gram_feature_space = self._build_feature_space(n, n_gram_to_index, numpy.array(Y))
 
@@ -44,7 +48,7 @@ class NGramFeatureSpace:
         try:
             column_indexes = [n_gram_to_index[y[i:i + n]] for i in range(y_n_gram_count)]
         except KeyError as key_error:
-            raise ValueError('{} is not a possible {:d}_gram for this alphabet'.format(key_error.args[0], n))
+            raise InvalidNGramError(key_error.args[0], n)
         return column_indexes
 
     # There is probably a faster way to do this but it must keep the index_count in index increasing order
