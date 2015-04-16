@@ -28,6 +28,14 @@ class StructuredKernelRidgeRegression:
         numpy.fill_diagonal(Gram_matrix, diagonal)
         return Weights
 
+    def predict(self, X, y_lengths=None):
+        if self.Weights_ is None:
+            raise ValueError("The fit function must be called before predict")
+        Gram_matrix = self.kernel(self.X_train_, X)
+        Predicted_weights = numpy.dot(self.Weights_, Gram_matrix).T
+        Y_predicted = self.inference_model.predict(Predicted_weights, y_lengths)
+        return Y_predicted
+
 
 # Basic structure for parameters inference_model.fit function.
 # That way inference_models.fit(parameters) don't have unused parameters but only access the ones they need
