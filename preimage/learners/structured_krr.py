@@ -14,13 +14,13 @@ class StructuredKernelRidgeRegression:
 
     def fit(self, X, Y):
         Gram_matrix = self.kernel(X, X)
-        self.Weights_ = self.__solve(Gram_matrix)
+        self.Weights_ = self._solve(Gram_matrix)
         self.X_train_ = X
         inference_parameters = InferenceFitParameters(self.Weights_, Gram_matrix, Y)
         self.inference_model.fit(inference_parameters)
         return self
 
-    def __solve(self, Gram_matrix):
+    def _solve(self, Gram_matrix):
         # Faster to use fill diagonal than -> (Gram_matrix + self.alpha * numpy.eye(n_examples))
         diagonal = Gram_matrix.diagonal()
         numpy.fill_diagonal(Gram_matrix, diagonal + self.alpha)
