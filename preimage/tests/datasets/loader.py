@@ -19,6 +19,7 @@ class TestLoader(unittest2.TestCase):
             with self.subTest(fold_id=fold_id):
                 train_dataset, test_dataset = loader.load_ocr_letters(fold_id)
                 n_examples = train_dataset.X.shape[0]
+
                 self.assertEqual(n_examples, self.ocr_n_examples_in_fold[fold_id])
 
     def test_load_ocr_letters_has_correct_number_of_y_in_fold(self):
@@ -26,6 +27,7 @@ class TestLoader(unittest2.TestCase):
             with self.subTest(fold_id=fold_id):
                 train_dataset, test_dataset = loader.load_ocr_letters(fold_id)
                 n_examples = train_dataset.Y.shape[0]
+
                 self.assertEqual(n_examples, self.ocr_n_examples_in_fold[fold_id])
 
     def test_load_ocr_letters_has_correct_number_of_x_not_in_fold(self):
@@ -33,6 +35,7 @@ class TestLoader(unittest2.TestCase):
             with self.subTest(fold_id=fold_id):
                 train_dataset, test_dataset = loader.load_ocr_letters(fold_id)
                 n_examples = test_dataset.X.shape[0]
+
                 self.assertEqual(n_examples, self.ocr_n_examples_not_in_fold[fold_id])
 
     def test_load_ocr_letters_has_correct_number_of_y_not_in_fold(self):
@@ -40,26 +43,31 @@ class TestLoader(unittest2.TestCase):
             with self.subTest(fold_id=fold_id):
                 train_dataset, test_dataset = loader.load_ocr_letters(fold_id)
                 n_examples = test_dataset.Y.shape[0]
+
                 self.assertEqual(n_examples, self.ocr_n_examples_not_in_fold[fold_id])
 
     def test_load_camps_dataset_has_correct_number_of_x(self):
         dataset = loader.load_camps_dataset()
         n_examples = dataset.X.shape[0]
+
         self.assertEqual(n_examples, self.camps_n_examples)
 
     def test_load_camps_dataset_has_correct_number_of_y(self):
         dataset = loader.load_camps_dataset()
         n_examples = dataset.y.shape[0]
+
         self.assertEqual(n_examples, self.camps_n_examples)
 
     def test_load_bpps_dataset_has_correct_number_of_x(self):
         dataset = loader.load_bpps_dataset()
         n_examples = dataset.X.shape[0]
+
         self.assertEqual(n_examples, self.bpps_n_examples)
 
     def test_load_bpps_dataset_has_correct_number_of_y(self):
         dataset = loader.load_bpps_dataset()
         n_examples = dataset.y.shape[0]
+
         self.assertEqual(n_examples, self.bpps_n_examples)
 
 
