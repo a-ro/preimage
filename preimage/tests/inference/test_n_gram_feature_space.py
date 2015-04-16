@@ -8,12 +8,12 @@ from preimage.inference.n_gram_feature_space import NGramFeatureSpace
 
 
 # Todo add test on bad constructor value : n <=0
-# Todo add test + add code for errors when one_gram_to_index doesn't contain n_gram
 class TestNGramFeatureSpace(unittest2.TestCase):
     def setUp(self):
         self.alphabet = ['a', 'b']
         self.one_gram_to_index = {'a': 0, 'b': 1}
         self.two_gram_to_index = {'aa': 0, 'ab': 1, 'ba': 2, 'bb': 3}
+        self.two_gram_to_index_without_bb = {'aa': 0, 'ab': 1, 'ba': 2}
         self.b = ['b']
         self.abb = ['abb']
         self.abaaa = ['abaaa']
@@ -50,11 +50,17 @@ class TestNGramFeatureSpace(unittest2.TestCase):
 
     def test_two_gram_two_examples_n_gram_feature_space_builds_expected_feature_space(self):
         self.n_gram_to_index_patch.start().return_value = self.two_gram_to_index
-        
+
         feature_space = NGramFeatureSpace(n=2, alphabet=self.alphabet, Y=self.abb_abaaa)
         dense_feature_space = feature_space._N_gram_feature_space.toarray()
 
         numpy.testing.assert_array_equal(dense_feature_space, self.abb_abaaa_two_gram_feature_space)
+
+    def test_two_gram_not_in_alphabet_n_gram_feature_space_raises_value_error(self):
+        self.n_gram_to_index_patch.start().return_value = self.two_gram_to_index_without_bb
+
+        with self.assertRaises(ValueError):
+            NGramFeatureSpace(n=2, alphabet=self.alphabet, Y=self.abb)
 
 
 if __name__ == '__main__':

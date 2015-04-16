@@ -41,7 +41,10 @@ class NGramFeatureSpace:
 
     def _get_y_column_indexes(self, y, n, n_gram_to_index):
         y_n_gram_count = len(y) - n + 1
-        column_indexes = [n_gram_to_index[y[i:i + n]] for i in range(y_n_gram_count)]
+        try:
+            column_indexes = [n_gram_to_index[y[i:i + n]] for i in range(y_n_gram_count)]
+        except KeyError as key_error:
+            raise ValueError('{} is not a possible {:d}_gram for this alphabet'.format(key_error.args[0], n))
         return column_indexes
 
     # There is probably a faster way to do this but it must keep the index_count in index increasing order
