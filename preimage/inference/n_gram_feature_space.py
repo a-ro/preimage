@@ -22,7 +22,7 @@ class NGramFeatureSpace:
         for y_index, y in enumerate(Y):
             self._build_y_indice_pointer_columns_data(indice_pointers, columns, data, n, n_gram_to_index, y, y_index)
         N_gram_feature_space = csr_matrix((numpy.array(data), numpy.array(columns), numpy.array(indice_pointers)),
-                                          shape=(n_examples, len(n_gram_to_index)))
+                                          shape=(n_examples, len(n_gram_to_index)), dtype=numpy.float)
         return N_gram_feature_space
 
     def _initialize_indice_pointers_columns_data(self, n_examples):
@@ -48,7 +48,7 @@ class NGramFeatureSpace:
         try:
             column_indexes = [n_gram_to_index[y[i:i + n]] for i in range(y_n_gram_count)]
         except KeyError as key_error:
-            raise InvalidNGramError(key_error.args[0], n)
+            raise InvalidNGramError(n, key_error.args[0])
         return column_indexes
 
     # There is probably a faster way to do this but it must keep the index_count in index increasing order
@@ -56,3 +56,13 @@ class NGramFeatureSpace:
         n_gram_counter = Counter(y_n_gram_indexes)
         data = [n_gram_counter[index] for index in unique_n_gram_indexes]
         return data
+
+    def compute_weights(self, Y_weights):
+        data_copy = numpy.copy(self._N_gram_feature_space.data)
+        self._N_gram_feature_space.data *= self._repeat_each_y_weight_by_y_column_count(Y_weights)
+        N_gram_weights = numpy.array(self._N_gram_feature_space.sum(axis=0))[0]
+        self._N_gram_feature_space.data = data_copy
+        return N_gram_weights
+
+    def _repeat_each_y_weight_by_y_column_count(self, Y_weights):
+        return Y_weights.repeat(numpy.diff(self._N_gram_feature_space.indptr))
