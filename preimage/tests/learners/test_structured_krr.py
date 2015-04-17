@@ -19,7 +19,7 @@ class TestStructuredKernelRidgeRegression(unittest2.TestCase):
         self.Gram_matrix_inverse = [[1.33333333, -0.66666667], [-0.66666667, 1.33333333]]
         self.Gram_matrix_plus_one_half_diagonal_inverse = [[0.75, -0.25], [-0.25, 0.75]]
         self.Gram_matrix_x_train_x_test = [[0, 1, 0], [0, 0, 1]]
-        self.Predicted_weights = [[0, 0], [1.33333333, -0.66666667], [-0.66666667, 1.33333333]]
+        self.Y_weights = [[0, 0], [1.33333333, -0.66666667], [-0.66666667, 1.33333333]]
         self.kernel_mock = Mock(side_effect=[self.Gram_matrix, self.Gram_matrix_x_train_x_test])
         self.model_mock = Mock()
         self.structured_krr = StructuredKernelRidgeRegression(alpha=0, kernel=self.kernel_mock,
@@ -68,13 +68,13 @@ class TestStructuredKernelRidgeRegression(unittest2.TestCase):
 
         numpy.testing.assert_array_equal(Y_predicted, self.Y_test)
 
-    def test_structured_krr_predict_sends_predicted_weights_to_inference_predict(self):
+    def test_structured_krr_predict_sends_y_weights_to_inference_predict(self):
         self.structured_krr.fit(self.X_train, self.Y_train)
         self.kernel_mock = Mock(return_value=self.Gram_matrix_x_train_x_test)
 
         self.structured_krr.predict(self.X_test)
 
-        numpy.testing.assert_almost_equal(self.model_mock.predict.call_args[0][0], self.Predicted_weights)
+        numpy.testing.assert_almost_equal(self.model_mock.predict.call_args[0][0], self.Y_weights)
 
     def test_structured_krr_predict_sends_y_lengths_to_inference_predict(self):
         self.structured_krr.fit(self.X_train, self.Y_train)
