@@ -7,8 +7,9 @@ class InvalidNGramError(ValueError):
         self.n_gram = n_gram
 
     def __str__(self):
-        error_message = '{} is not a possible {:d}_gram for this alphabet'.format(self.n_gram, self.n)
+        error_message = "{} is not a possible {:d}_gram for this alphabet".format(self.n_gram, self.n)
         return error_message
+
 
 
 class InvalidNError(ValueError):
