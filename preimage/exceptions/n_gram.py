@@ -12,7 +12,7 @@ class InvalidNGramError(ValueError):
 
 
 
-class InvalidNError(ValueError):
+class InvalidNGramLengthError(ValueError):
     def __init__(self, n):
         self.n = n
 

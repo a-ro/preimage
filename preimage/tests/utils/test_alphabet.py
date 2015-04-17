@@ -4,6 +4,7 @@ import unittest2
 import numpy.testing
 
 from preimage.utils.alphabet import get_n_gram_to_index, get_n_grams
+from preimage.exceptions.n_gram import InvalidNGramLengthError
 
 
 class TestAlphabet(unittest2.TestCase):
@@ -38,7 +39,7 @@ class TestAlphabet(unittest2.TestCase):
         self.assertDictEqual(n_gram_to_index, self.two_gram_to_index)
 
     def test_n_zero_get_n_gram_to_index_raises_value_error(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidNGramLengthError):
             get_n_gram_to_index(self.a_b_alphabet, n=0)
 
 
