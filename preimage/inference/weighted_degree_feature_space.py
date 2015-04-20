@@ -1,56 +1,42 @@
 __author__ = 'amelie'
 
 import numpy
-from scipy.sparse import csr_matrix
 
-from preimage.utils.alphabet import get_n_gram_to_index
-from preimage.exceptions.n_gram import InvalidNGramError
+from preimage.inference.string_feature_space import build_feature_space_with_positions
 
 
 # Sparse matrix representation of the n_grams in each word (y). Takes in account the position of the n_grams
 # Gives a matrix of shape m x max_n_gram_count_in_y*(len(alphabet)**n)
-# todo add compute weights
-# todo combine n_gram and weighted feature space to avoid repetitive code
 class WeightedDegreeFeatureSpace:
-    def __init__(self, n, alphabet, Y):
-        n = int(n)
-        total_n_gram_count = len(alphabet)**n
-        n_gram_to_index = get_n_gram_to_index(alphabet, n)
-        self._Feature_space = self._build_feature_space(n, n_gram_to_index, numpy.array(Y), total_n_gram_count)
+    def __init__(self, alphabet, n, Y):
+        self._n = int(n)
+        self._alphabet_n_gram_count = len(alphabet) ** n
+        self._Feature_space = build_feature_space_with_positions(alphabet, self._n, Y)
+        self._max_n_gram_count = self.__get_max_n_gram_count(self._alphabet_n_gram_count, self._Feature_space)
 
-    def _build_feature_space(self, n, n_gram_to_index, Y, total_n_gram_count):
-        n_examples = Y.shape[0]
-        indice_pointers, columns, data = self._initialize_indice_pointers_columns_data(n_examples)
-        max_n_gram_in_word = self._get_max_number_of_n_gram_in_words(Y, n)
-        for y_index, y in enumerate(Y):
-            self._build_y_indice_pointer_columns_data(indice_pointers, columns, data, n, n_gram_to_index, y, y_index,
-                                                      total_n_gram_count)
-        N_gram_feature_space = csr_matrix((numpy.array(data), numpy.array(columns), numpy.array(indice_pointers)),
-                                          shape=(n_examples, max_n_gram_in_word*total_n_gram_count), dtype=numpy.float)
-        return N_gram_feature_space
-
-    def _get_max_number_of_n_gram_in_words(self, Y, n):
-        max_word_length = numpy.max([len(y) for y in Y])
-        max_n_gram_count = max_word_length - n + 1
+    def __get_max_n_gram_count(self, alphabet_n_gram_count, Feature_space):
+        n_columns = Feature_space.shape[1]
+        max_n_gram_count = int(n_columns / alphabet_n_gram_count)
         return max_n_gram_count
 
-    def _initialize_indice_pointers_columns_data(self, n_examples):
-        indice_pointers = numpy.empty(n_examples + 1, dtype=numpy.int)
-        indice_pointers[0] = 0
-        columns = []
-        data = []
-        return indice_pointers, columns, data
+    def compute_weights(self, y_weights, y_length):
+        y_n_gram_count = y_length - self._n + 1
+        data_copy = numpy.copy(self._Feature_space.data)
+        self._Feature_space.data *= self._repeat_each_y_weight_by_y_column_count(y_weights)
+        Weighted_degree_weights = numpy.array(self._Feature_space.sum(axis=0))[0]
+        self._Feature_space.data = data_copy
+        Weighted_degree_weights = self._get_weight_for_each_graph_partition(y_n_gram_count, Weighted_degree_weights)
+        return Weighted_degree_weights
 
-    def _build_y_indice_pointer_columns_data(self, indice_pointers, columns, data, n, n_gram_to_index, y, y_index,
-                                             total_n_gram_count):
-        y_n_gram_count = len(y) - n + 1
-        indice_pointers[y_index + 1] = indice_pointers[y_index] + y_n_gram_count
-        columns += self._get_y_column_indexes(y, n, n_gram_to_index, total_n_gram_count, y_n_gram_count)
-        data += [1.] * y_n_gram_count
+    def _get_weight_for_each_graph_partition(self, y_n_gram_count, Weighted_degree_weights):
+        Weighted_degree_weights = Weighted_degree_weights.reshape(self._max_n_gram_count, -1)
+        if y_n_gram_count <= self._max_n_gram_count:
+            Weighted_degree_weights = Weighted_degree_weights[0:y_n_gram_count, :]
+        else:
+            Partitions_with_zero_weight = numpy.zeros((y_n_gram_count - self._max_n_gram_count,
+                                                       self._alphabet_n_gram_count))
+            Weighted_degree_weights = numpy.concatenate((Weighted_degree_weights, Partitions_with_zero_weight), axis=0)
+        return Weighted_degree_weights
 
-    def _get_y_column_indexes(self, y, n, n_gram_to_index, total_n_gram_count, y_n_gram_count):
-        try:
-            column_indexes = [(i*total_n_gram_count) + n_gram_to_index[y[i:i + n]] for i in range(y_n_gram_count)]
-        except KeyError as key_error:
-            raise InvalidNGramError(n, key_error.args[0])
-        return column_indexes
+    def _repeat_each_y_weight_by_y_column_count(self, y_weights):
+        return y_weights.repeat(numpy.diff(self._Feature_space.indptr))
