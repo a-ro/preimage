@@ -28,7 +28,7 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         self.feature_space_builder_patch.start().return_value = self.Feature_space_one_gram_abb
 
         feature_space = NGramFeatureSpace(alphabet=self.alphabet, n=1, Y=self.abb)
-        n_gram_weights = feature_space.compute_weights(Y_weights=numpy.array([[0.5]]))
+        n_gram_weights = feature_space.compute_weights(y_weights=numpy.array([0.5]))
 
         numpy.testing.assert_array_equal(n_gram_weights, self.one_gram_weights_one_half_abb)
 
@@ -36,7 +36,7 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         self.feature_space_builder_patch.start().return_value = self.Feature_space_two_gram_abb
 
         feature_space = NGramFeatureSpace(alphabet=self.alphabet, n=2, Y=self.abb)
-        n_gram_weights = feature_space.compute_weights(Y_weights=numpy.array([[0.5]]))
+        n_gram_weights = feature_space.compute_weights(y_weights=numpy.array([0.5]))
 
         numpy.testing.assert_array_equal(n_gram_weights, self.two_gram_weights_one_half_abb)
 
@@ -44,7 +44,7 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         self.feature_space_builder_patch.start().return_value = self.Feature_space_two_gram_abb_abaaa
 
         feature_space = NGramFeatureSpace(alphabet=self.alphabet, n=2, Y=self.abb_abaaa)
-        n_gram_weights = feature_space.compute_weights(Y_weights=numpy.array([[0.5, 1]]))
+        n_gram_weights = feature_space.compute_weights(y_weights=numpy.array([0.5, 1]))
 
         numpy.testing.assert_array_equal(n_gram_weights, self.two_gram_weights_one_half_abb_one_abaaa)
 
@@ -52,10 +52,10 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         self.feature_space_builder_patch.start().return_value = self.Feature_space_one_gram_abb
         feature_space = NGramFeatureSpace(alphabet=self.alphabet, n=1, Y=self.abb)
 
-        feature_space.compute_weights(Y_weights=numpy.array([[0.5]]))
-        n_gram_feature_space = feature_space._feature_space
+        feature_space.compute_weights(y_weights=numpy.array([0.5]))
+        N_gram_feature_space = feature_space._Feature_space
 
-        numpy.testing.assert_array_equal(n_gram_feature_space.toarray(), self.Feature_space_one_gram_abb.toarray())
+        numpy.testing.assert_array_equal(N_gram_feature_space.toarray(), self.Feature_space_one_gram_abb.toarray())
 
 
 if __name__ == '__main__':
