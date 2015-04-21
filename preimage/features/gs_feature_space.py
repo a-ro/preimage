@@ -2,7 +2,7 @@ __author__ = 'amelie'
 
 import numpy
 
-from preimage.inference.string_feature_space import build_feature_space_with_positions
+from preimage.features.string_feature_space import build_feature_space_with_positions
 from preimage.utils.position import compute_position_weights
 
 

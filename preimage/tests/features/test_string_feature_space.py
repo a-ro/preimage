@@ -4,8 +4,8 @@ import unittest2
 import numpy.testing
 from mock import patch
 
-from preimage.inference.string_feature_space import build_feature_space_without_positions
-from preimage.inference.string_feature_space import build_feature_space_with_positions
+from preimage.features.string_feature_space import build_feature_space_without_positions
+from preimage.features.string_feature_space import build_feature_space_with_positions
 from preimage.exceptions.n_gram import InvalidNGramError
 
 
@@ -27,7 +27,7 @@ class TestStringFeatureSpace(unittest2.TestCase):
         self.Weighted_degree_two_gram_abaaa = [[0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0]]
         self.Weighted_degree_two_gram_abb_abaaa = [[0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                                                    [0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0]]
-        self.n_gram_to_index_patch = patch('preimage.inference.string_feature_space.get_n_gram_to_index')
+        self.n_gram_to_index_patch = patch('preimage.features.string_feature_space.get_n_gram_to_index')
         self.one_gram_weights_one_half_abb = [0.5, 1]
         self.two_gram_weights_one_half_abb = [0, 0.5, 0, 0.5]
         self.two_gram_weights_one_half_abb_one_abaaa = [2, 1.5, 1, 0.5]

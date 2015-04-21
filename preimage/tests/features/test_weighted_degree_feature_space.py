@@ -5,7 +5,7 @@ import numpy.testing
 from mock import patch
 from scipy.sparse import csr_matrix
 
-from preimage.inference.weighted_degree_feature_space import WeightedDegreeFeatureSpace
+from preimage.features.weighted_degree_feature_space import WeightedDegreeFeatureSpace
 
 
 class TestWeightedDegreeFeatureSpace(unittest2.TestCase):
@@ -21,7 +21,7 @@ class TestWeightedDegreeFeatureSpace(unittest2.TestCase):
         self.Weighted_degree_weights_length_four_one_half_abb = [[0.5, 0], [0, 0.5], [0, 0.5], [0, 0]]
         self.Weighted_degree_weights_two_grams_abb_abaaa = [[0, 0.7, 0, 0], [0, 0, 0.5, 0.2], [0.5, 0, 0, 0],
                                                             [0.5, 0, 0, 0]]
-        self.feature_space_builder_patch = patch('preimage.inference.weighted_degree_feature_space.'
+        self.feature_space_builder_patch = patch('preimage.features.weighted_degree_feature_space.'
                                                  'build_feature_space_with_positions')
 
     def test_smaller_length_than_train_y_length_compute_one_gram_weights_returns_expected_weights(self):

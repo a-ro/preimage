@@ -2,7 +2,7 @@ __author__ = 'amelie'
 
 import numpy
 
-from preimage.inference.string_feature_space import build_feature_space_without_positions
+from preimage.features.string_feature_space import build_feature_space_without_positions
 
 
 # Sparse matrix representation of the n_grams in each word (y)

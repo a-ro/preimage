@@ -5,7 +5,7 @@ import numpy.testing
 from mock import patch
 from scipy.sparse import csr_matrix
 
-from preimage.inference.n_gram_feature_space import NGramFeatureSpace
+from preimage.features.n_gram_feature_space import NGramFeatureSpace
 
 
 class TestNGramFeatureSpace(unittest2.TestCase):
@@ -20,7 +20,7 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         self.one_gram_weights_one_half_abb = [0.5, 1]
         self.two_gram_weights_one_half_abb = [0, 0.5, 0, 0.5]
         self.two_gram_weights_one_half_abb_one_abaaa = [2, 1.5, 1, 0.5]
-        self.feature_space_builder_patch = patch('preimage.inference.n_gram_feature_space.'
+        self.feature_space_builder_patch = patch('preimage.features.n_gram_feature_space.'
                                                  'build_feature_space_without_positions')
 
 

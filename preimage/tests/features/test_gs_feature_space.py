@@ -5,7 +5,7 @@ import numpy.testing
 from mock import patch
 from scipy.sparse import csr_matrix
 
-from preimage.inference.gs_feature_space import GenericStringFeatureSpace
+from preimage.features.gs_feature_space import GenericStringFeatureSpace
 
 
 class TestGSFeatureSpace(unittest2.TestCase):
@@ -32,14 +32,14 @@ class TestGSFeatureSpace(unittest2.TestCase):
         self.GS_weights_length_three_small_sigma_abb_abaaa = [[0, 1.5, 0, 0], [0, 0, 1., 0.5], [1., 0, 0, 0]]
 
     def setup_feature_space_patch(self):
-        self.feature_space_builder_patch = patch('preimage.inference.gs_feature_space.'
+        self.feature_space_builder_patch = patch('preimage.features.gs_feature_space.'
                                                  'build_feature_space_with_positions')
         self.Feature_space_one_gram_abb = csr_matrix([[1., 0, 0, 1., 0, 1.]])
         self.Feature_space_two_gram_abb_abaaa = csr_matrix([[0, 1., 0, 0, 0, 0, 0, 1., 0, 0, 0, 0, 0, 0, 0, 0],
                                                             [0, 1., 0, 0, 0, 0, 1., 0, 1., 0, 0, 0, 1., 0, 0, 0]])
 
     def setup_position_weights_patch(self):
-        self.position_patch = patch('preimage.inference.gs_feature_space.compute_position_weights')
+        self.position_patch = patch('preimage.features.gs_feature_space.compute_position_weights')
         self.position_weights_length_two_small_sigma_abb = numpy.array([[1., 0, 0], [0., 1, 0]])
         self.position_weights_length_four_small_sigma_abb = numpy.array([[1., 0, 0], [0, 1., 0], [0, 0, 1.], [0, 0, 0]])
         self.position_weights_length_three_large_sigma_abb = numpy.array([[1., 1., 1.], [1., 1, 1.], [1., 1., 1.]])
