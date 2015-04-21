@@ -15,14 +15,12 @@ class TestWeightedDegreeFeatureSpace(unittest2.TestCase):
         self.abaaa = ['abaaa']
         self.abb_abaaa = self.abb + self.abaaa
         self.Feature_space_one_gram_abb = csr_matrix([[1., 0, 0, 1., 0, 1.]])
-        self.Feature_space_two_gram_abaaa = [[0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0]]
         self.Feature_space_two_gram_abb_abaaa = csr_matrix([[0, 1., 0, 0, 0, 0, 0, 1., 0, 0, 0, 0, 0, 0, 0, 0],
                                                             [0, 1., 0, 0, 0, 0, 1., 0, 1., 0, 0, 0, 1., 0, 0, 0]])
         self.Weighted_degree_weights_length_two_one_half_abb = [[0.5, 0], [0, 0.5]]
         self.Weighted_degree_weights_length_four_one_half_abb = [[0.5, 0], [0, 0.5], [0, 0.5], [0, 0]]
         self.Weighted_degree_weights_two_grams_abb_abaaa = [[0, 0.7, 0, 0], [0, 0, 0.5, 0.2], [0.5, 0, 0, 0],
                                                             [0.5, 0, 0, 0]]
-        self.two_gram_weights_one_half_abb_one_abaaa = [2, 1.5, 1, 0.5]
         self.feature_space_builder_patch = patch('preimage.inference.weighted_degree_feature_space.'
                                                  'build_feature_space_with_positions')
 
