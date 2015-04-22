@@ -19,6 +19,13 @@ def get_n_gram_to_index(alphabet, n):
     return n_gram_to_index
 
 
+def get_index_to_n_gram(alphabet, n):
+    n_grams = get_n_grams(alphabet, n)
+    indexes = numpy.arange(len(n_grams))
+    index_to_n_gram = dict(zip(indexes, n_grams))
+    return index_to_n_gram
+
+
 def get_n_grams(alphabet, n):
     n = int(n)
     if n <= 0:
