@@ -52,7 +52,7 @@ class TestWeightedDegreeFeatureSpace(unittest2.TestCase):
     def test_two_gram_two_y_normalized_feature_space_is_normalized(self):
         self.feature_space_builder_patch.start().return_value = self.Feature_space_one_gram_abb_abaaa
 
-        feature_space = WeightedDegreeFeatureSpace(self.alphabet, n=2, Y=self.abb, is_normalized=True)
+        feature_space = WeightedDegreeFeatureSpace(self.alphabet, n=1, Y=self.abb_abaaa, is_normalized=True)
         Feature_space_normalized = numpy.array(feature_space._Feature_space.todense())
 
         numpy.testing.assert_array_equal(Feature_space_normalized, self.Feature_space_normalized_one_gram_abb_abaaa)
