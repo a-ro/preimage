@@ -7,8 +7,20 @@ from preimage.features.string_feature_space import build_feature_space_without_p
 
 # Sparse matrix representation of the n_grams in each word (y)
 class NGramFeatureSpace:
-    def __init__(self, alphabet, n, Y):
+    def __init__(self, alphabet, n, Y, is_normalized):
         self._Feature_space = build_feature_space_without_positions(alphabet, n, Y)
+        self._normalize(is_normalized, self._Feature_space)
+
+    def _normalize(self, is_normalized, Y_feature_space):
+        if is_normalized:
+            y_normalization = self._get_y_normalization(Y_feature_space)
+            data_normalization = y_normalization.repeat(numpy.diff(Y_feature_space.indptr))
+            Y_feature_space.data *= data_normalization
+
+    def _get_y_normalization(self, Y_feature_space):
+        y_normalization = (Y_feature_space.multiply(Y_feature_space)).sum(axis=1)
+        y_normalization = 1. / numpy.sqrt(numpy.array((y_normalization.reshape(1, -1))[0]))
+        return y_normalization
 
     def compute_weights(self, y_weights):
         data_copy = numpy.copy(self._Feature_space.data)
