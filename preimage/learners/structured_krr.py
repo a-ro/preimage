@@ -2,9 +2,9 @@ __author__ = 'amelie'
 
 import numpy
 from scipy import linalg
+from sklearn.base import BaseEstimator
 
-
-class StructuredKernelRidgeRegression:
+class StructuredKernelRidgeRegression(BaseEstimator):
     def __init__(self, alpha, kernel, inference_model):
         self.alpha = alpha
         self.kernel = kernel

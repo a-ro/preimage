@@ -1,9 +1,9 @@
 __author__ = 'amelie'
 
 import numpy
+from sklearn.base import BaseEstimator
 
-
-class PolynomialKernel:
+class PolynomialKernel(BaseEstimator):
     def __init__(self, degree=2, bias=1., is_normalized=True):
         self.degree = degree
         self.bias = bias
