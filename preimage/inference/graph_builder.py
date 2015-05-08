@@ -45,7 +45,7 @@ class GraphBuilder:
             Graph[i, :] = numpy.max(Graph[i - 1, self._entering_edges], axis=1) + Graph_weights[i, :]
 
     # todo add verification for graph weights shape
-    def find_max_string_in_graph(self, Graph_weights, y_length):
+    def find_max_string(self, Graph_weights, y_length):
         n_partitions = y_length - self._n + 1
         Graph = numpy.empty((2, self._n_gram_count))
         Predecessors = numpy.empty((n_partitions - 1, self._n_gram_count), dtype=numpy.int)
@@ -63,7 +63,7 @@ class GraphBuilder:
             Graph[0, :] = Graph[1, :]
 
     # todo add verification min max length
-    def find_max_string_in_graph_no_length(self, Graph_weights, min_y_length, max_y_length, is_normalized):
+    def find_max_string_in_length_range(self, Graph_weights, min_y_length, max_y_length, is_normalized):
         n_partitions = max_y_length - self._n + 1
         min_partition_index = min_y_length - self._n
         Graph = numpy.empty((n_partitions, self._n_gram_count))
@@ -78,21 +78,20 @@ class GraphBuilder:
 
     def _build_complete_graph_with_predecessors(self, n_partitions, Graph, Graph_weights, Predecessors):
         for i in range(1, n_partitions):
-            max_entering_edge_indexes = numpy.argmax(Graph[i - i, self._entering_edges], axis=1)
+            max_entering_edge_indexes = numpy.argmax(Graph[i - 1, self._entering_edges], axis=1)
             Predecessors[i - 1, :] = self._entering_edges[self._n_gram_indexes, max_entering_edge_indexes]
             Graph[i, :] = Graph[i - 1, Predecessors[i - 1, :]] + self._get_weights(i, Graph_weights)
 
     def _get_max_string_end_indexes(self, Graph, min_partition, n_partitions, is_normalized):
         if is_normalized:
-            normalization = numpy.array([numpy.sqrt(n_gram_count) for n_gram_count in range(min_partition + 1,
-                                                                                            n_partitions + 1)]).reshape(
-                -1, 1)
-            Graph[min_partition:, :] *= 1. / normalization
+            norm = [numpy.sqrt(n_gram_count) for n_gram_count in range(min_partition + 1, n_partitions + 1)]
+            norm = numpy.array(norm).reshape(-1, 1)
+            Graph[min_partition:, :] *= 1. / norm
             end_indexes = numpy.unravel_index(numpy.argmax(Graph[min_partition:, :]), Graph[min_partition:, :].shape)
         else:
-            k_y_y = numpy.array([n_gram_count for n_gram_count in range(min_partition + 1, n_partitions + 1)]).reshape(
-                -1, 1)
-            Graph[min_partition:, :] = k_y_y - 2 * Graph[min_partition:, :]
+            norm = [n_gram_count for n_gram_count in range(min_partition + 1, n_partitions + 1)]
+            norm = numpy.array(norm).reshape(-1, 1)
+            Graph[min_partition:, :] = norm - 2 * Graph[min_partition:, :]
             end_indexes = numpy.unravel_index(numpy.argmin(Graph[min_partition:, :]), Graph[min_partition:, :].shape)
         return end_indexes
 

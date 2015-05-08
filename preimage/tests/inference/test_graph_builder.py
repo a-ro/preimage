@@ -14,6 +14,8 @@ class TestGraphBuilder(unittest2.TestCase):
         self.weights_two_gram = numpy.arange(9)
         self.Weights_one_gram_length_one = numpy.array([[1, 2, 3]])
         self.Weights_one_gram_length_two = numpy.array([[1, 2, 3], [3, 2, 0]])
+        self.Weights_small_last_weights = numpy.array([[1, 2, 3], [3, 2, 0], [1.3, 1, 1]])
+        self.Weights_big_last_weights = numpy.array([[1, 2, 3], [3, 2, 0], [1.5, 1, 1]])
         self.Weights_one_gram_length_two_zero_weights = numpy.array([[1, 2, 3], [0, 0, 0]])
         self.Weights_two_gram_length_two = numpy.array([numpy.arange(9)])
         self.Weights_two_gram_length_three = numpy.array([numpy.arange(8, -1, -1), numpy.arange(9)])
@@ -30,6 +32,7 @@ class TestGraphBuilder(unittest2.TestCase):
         self.y_max_one_gram_length_one = 'c'
         self.y_max_two_gram_length_two = 'cc'
         self.y_max_one_gram_length_two = 'ca'
+        self.y_max_one_gram_length_three = 'caa'
         self.y_max_one_gram_length_three_same_weight = 'ccc'
         self.y_max_two_gram_length_three = 'acc'
 
@@ -106,91 +109,99 @@ class TestGraphBuilder(unittest2.TestCase):
     def test_one_gram_length_one_find_max_string_returns_n_gram_with_max_weight(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph(self.Weights_one_gram_length_one, y_length=1)
+        y_max = graph_builder.find_max_string(self.Weights_one_gram_length_one, y_length=1)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_one)
 
     def test_two_gram_length_two_find_max_string_returns_n_gram_with_max_weight(self):
         graph_builder = GraphBuilder(self.alphabet, n=2)
 
-        y_max = graph_builder.find_max_string_in_graph(self.Weights_two_gram_length_two, y_length=2)
+        y_max = graph_builder.find_max_string(self.Weights_two_gram_length_two, y_length=2)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_two_gram_length_two)
 
     def test_one_gram_length_two_find_max_string_returns_expected_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph(self.Weights_one_gram_length_two, y_length=2)
+        y_max = graph_builder.find_max_string(self.Weights_one_gram_length_two, y_length=2)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_two)
 
     def test_one_gram_length_three_same_weights_find_max_string_returns_expected_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph(self.weights_one_gram, y_length=3)
+        y_max = graph_builder.find_max_string(self.weights_one_gram, y_length=3)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_three_same_weight)
 
     def test_two_gram_length_three_find_max_string_returns_expected_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=2)
 
-        y_max = graph_builder.find_max_string_in_graph(self.Weights_two_gram_length_three, y_length=3)
+        y_max = graph_builder.find_max_string(self.Weights_two_gram_length_three, y_length=3)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_two_gram_length_three)
 
     def test_one_gram_one_length_in_range_find_max_string_returns_expected_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph_no_length(self.Weights_one_gram_length_two, min_y_length=2,
-                                                                 max_y_length=2, is_normalized=False)
+        y_max = graph_builder.find_max_string_in_length_range(self.Weights_one_gram_length_two, min_y_length=2,
+                                                              max_y_length=2, is_normalized=False)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_two)
 
     def test_one_gram_one_length_in_range_normalized_find_max_string_returns_expected_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph_no_length(self.Weights_one_gram_length_two, min_y_length=2,
-                                                                 max_y_length=2, is_normalized=True)
+        y_max = graph_builder.find_max_string_in_length_range(self.Weights_one_gram_length_two, min_y_length=2,
+                                                              max_y_length=2, is_normalized=True)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_two)
 
     def test_one_gram_two_lengths_in_range_find_max_string_returns_length_two_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph_no_length(self.Weights_one_gram_length_two, min_y_length=1,
-                                                                 max_y_length=2, is_normalized=False)
+        y_max = graph_builder.find_max_string_in_length_range(self.Weights_one_gram_length_two, min_y_length=1,
+                                                              max_y_length=2, is_normalized=False)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_two)
 
     def test_one_gram_three_lengths_in_range_find_max_string_returns_length_two_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph_no_length(self.weights_one_gram, min_y_length=1,
-                                                                 max_y_length=3, is_normalized=True)
+        y_max = graph_builder.find_max_string_in_length_range(self.Weights_small_last_weights, min_y_length=1,
+                                                              max_y_length=3, is_normalized=True)
 
-        numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_three_same_weight)
+        numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_two)
+
+    def test_one_gram_three_lengths_in_range_find_max_string_returns_length_three_string(self):
+        graph_builder = GraphBuilder(self.alphabet, n=1)
+
+        y_max = graph_builder.find_max_string_in_length_range(self.Weights_big_last_weights, min_y_length=1,
+                                                              max_y_length=3, is_normalized=True)
+
+        numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_three)
 
     def test_zero_weights_for_length_two_find_max_string_without_length_returns_length_one_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph_no_length(self.Weights_one_gram_length_two_zero_weights,
-                                                                 min_y_length=1, max_y_length=2, is_normalized=False)
+        y_max = graph_builder.find_max_string_in_length_range(self.Weights_one_gram_length_two_zero_weights,
+                                                              min_y_length=1, max_y_length=2, is_normalized=False)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_one)
 
     def test_normalized_zero_weights_for_length_two_find_max_string_without_length_returns_length_one_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=1)
 
-        y_max = graph_builder.find_max_string_in_graph_no_length(self.Weights_one_gram_length_two_zero_weights,
-                                                                 min_y_length=1, max_y_length=2, is_normalized=True)
+        y_max = graph_builder.find_max_string_in_length_range(self.Weights_one_gram_length_two_zero_weights,
+                                                              min_y_length=1, max_y_length=2, is_normalized=True)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_one_gram_length_one)
 
     def test_two_gram_two_lengths_find_max_string_without_length_returns_length_three_string(self):
         graph_builder = GraphBuilder(self.alphabet, n=2)
 
-        y_max = graph_builder.find_max_string_in_graph_no_length(self.Weights_two_gram_length_three,
-                                                                 min_y_length=2, max_y_length=3, is_normalized=False)
+        y_max = graph_builder.find_max_string_in_length_range(self.Weights_two_gram_length_three,
+                                                              min_y_length=2, max_y_length=3, is_normalized=False)
 
         numpy.testing.assert_array_equal(y_max, self.y_max_two_gram_length_three)
 
