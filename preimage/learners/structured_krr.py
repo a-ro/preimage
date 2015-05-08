@@ -3,11 +3,11 @@ __author__ = 'amelie'
 import numpy
 from scipy import linalg
 from sklearn.base import BaseEstimator
+from preimage.learners.base_krr import KernelRidgeRegression
 
-class StructuredKernelRidgeRegression(BaseEstimator):
+class StructuredKernelRidgeRegression(KernelRidgeRegression):
     def __init__(self, alpha, kernel, inference_model):
-        self.alpha = alpha
-        self.kernel = kernel
+        super().__init__(alpha, kernel)
         self.inference_model = inference_model
         self.Weights_ = None
         self.X_train_ = None
@@ -19,13 +19,6 @@ class StructuredKernelRidgeRegression(BaseEstimator):
         inference_parameters = InferenceFitParameters(self.Weights_, Gram_matrix, Y, y_lengths)
         self.inference_model.fit(inference_parameters)
         return self
-
-    def _solve(self, Gram_matrix):
-        diagonal = Gram_matrix.diagonal()
-        numpy.fill_diagonal(Gram_matrix, diagonal + self.alpha)
-        Weights = linalg.inv(Gram_matrix)
-        numpy.fill_diagonal(Gram_matrix, diagonal)
-        return Weights
 
     def predict(self, X, y_lengths=None):
         if self.Weights_ is None:
