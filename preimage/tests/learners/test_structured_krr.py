@@ -14,7 +14,8 @@ class TestStructuredKernelRidgeRegression(unittest2.TestCase):
         self.X_test = [[0, 0], [1, 0], [0, 1]]
         self.Y_train = ['abc', 'ba']
         self.Y_test = ['ab', 'baa', 'a']
-        self.y_lengths = [2, 3, 1]
+        self.y_test_lengths = [2, 3, 1]
+        self.y_train_lengths = [1, 2]
         self.Gram_matrix = numpy.array([[1., 0.5], [0.5, 1.]])
         self.Gram_matrix_inverse = [[1.33333333, -0.66666667], [-0.66666667, 1.33333333]]
         self.Gram_matrix_plus_one_half_diagonal_inverse = [[0.75, -0.25], [-0.25, 0.75]]
@@ -47,9 +48,10 @@ class TestStructuredKernelRidgeRegression(unittest2.TestCase):
         inference_parameter_mock = Mock(return_value=None)
         InferenceFitParameters.__init__ = inference_parameter_mock
 
-        self.structured_krr.fit(self.X_train, self.Y_train)
+        self.structured_krr.fit(self.X_train, self.Y_train, self.y_train_lengths)
 
-        inference_parameter_mock.assert_called_once_with(self.structured_krr.Weights_, self.Gram_matrix, self.Y_train)
+        inference_parameter_mock.assert_called_once_with(self.structured_krr.Weights_, self.Gram_matrix, self.Y_train,
+                                                         self.y_train_lengths)
 
     def test_structured_krr_fit_calls_inference_model_fit(self):
         self.structured_krr.fit(self.X_train, self.Y_train)
@@ -80,9 +82,9 @@ class TestStructuredKernelRidgeRegression(unittest2.TestCase):
         self.structured_krr.fit(self.X_train, self.Y_train)
         self.kernel_mock = Mock(return_value=self.Gram_matrix_x_train_x_test)
 
-        self.structured_krr.predict(self.X_test, self.y_lengths)
+        self.structured_krr.predict(self.X_test, self.y_test_lengths)
 
-        numpy.testing.assert_almost_equal(self.model_mock.predict.call_args[0][1], self.y_lengths)
+        numpy.testing.assert_almost_equal(self.model_mock.predict.call_args[0][1], self.y_test_lengths)
 
 
 if __name__ == '__main__':
