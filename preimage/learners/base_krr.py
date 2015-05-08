@@ -4,6 +4,7 @@ import numpy
 from scipy import linalg
 from sklearn.base import BaseEstimator
 
+
 class KernelRidgeRegression(BaseEstimator):
     def __init__(self, alpha, kernel):
         self.alpha = alpha
