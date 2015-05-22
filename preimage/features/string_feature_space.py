@@ -15,8 +15,8 @@ def build_feature_space_without_positions(alphabet, n, Y):
     n_gram_to_index = get_n_gram_to_index(alphabet, n)
     index_pointers, indexes, data = __initialize_pointers_indexes_data(n_examples)
     __build_y_pointers_indexes_data(index_pointers, indexes, data, n, n_gram_to_index, Y)
-    Y_feature_space = __build_csr_matrix(index_pointers, indexes, data, n_examples, len(n_gram_to_index))
-    return Y_feature_space
+    feature_space = __build_csr_matrix(index_pointers, indexes, data, n_examples, len(n_gram_to_index))
+    return feature_space
 
 
 def __initialize_pointers_indexes_data(n_examples):
@@ -68,8 +68,8 @@ def build_feature_space_with_positions(alphabet, n, Y):
     index_pointers, indexes, data = __initialize_pointers_indexes_data(n_examples)
     __build_pointers_indexes_data_with_positions(index_pointers, indexes, data, n, n_gram_to_index, Y)
     n_columns = __get_n_columns(n, len(n_gram_to_index), Y)
-    Y_feature_space = __build_csr_matrix(index_pointers, indexes, data, n_examples, n_columns)
-    return Y_feature_space
+    feature_space = __build_csr_matrix(index_pointers, indexes, data, n_examples, n_columns)
+    return feature_space
 
 
 def __get_n_columns(n, n_gram_count_in_alphabet, Y):
