@@ -11,7 +11,6 @@ class InvalidNGramError(ValueError):
         return error_message
 
 
-
 class InvalidNGramLengthError(ValueError):
     def __init__(self, n):
         self.n = n
