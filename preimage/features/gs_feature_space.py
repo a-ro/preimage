@@ -26,7 +26,7 @@ class GenericStringFeatureSpace:
 
     def _normalize(self, feature_space, n, Y, sigma_position, is_normalized):
         if is_normalized:
-            y_y_similarity = element_wise_kernel(Y, sigma_position, n, is_blended=False)
+            y_y_similarity = element_wise_kernel(Y, sigma_position, n)
             y_normalization = 1. / numpy.sqrt(y_y_similarity)
             data_normalization = y_normalization.repeat(numpy.diff(feature_space.indptr))
             feature_space.data *= data_normalization
