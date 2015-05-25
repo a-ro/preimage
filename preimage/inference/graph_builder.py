@@ -3,6 +3,8 @@ __author__ = 'amelie'
 import numpy
 
 from preimage.utils.alphabet import get_index_to_n_gram
+from preimage.exceptions.shape import InvalidShapeError
+from preimage.exceptions.n_gram import InvalidYLengthError, InvalidMinLengthError
 
 
 class GraphBuilder:
@@ -24,88 +26,101 @@ class GraphBuilder:
             entering_edges = numpy.array(entering_edges).reshape(n_gram_count, len(alphabet))
         return entering_edges
 
-    # todo add verification for graph weights shape
-    def build_graph(self, Graph_weights, y_length):
+    def build_graph(self, graph_weights, y_length):
         n_partitions = y_length - self._n + 1
-        Graph = numpy.empty((n_partitions, self._n_gram_count))
-        if Graph_weights.ndim == 1:
-            self._build_graph_same_weights(n_partitions, Graph, Graph_weights)
-        else:
-            self._build_graph_different_weights(n_partitions, Graph, Graph_weights)
-        return Graph
+        self._verify_graph_weights_and_y_length(graph_weights, n_partitions)
+        graph = self._initialize_graph(n_partitions, graph_weights)
+        self._build_graph(n_partitions, graph, graph_weights)
+        return graph
 
-    def _build_graph_same_weights(self, n_partitions, Graph, graph_weights):
-        Graph[0, :] = graph_weights
+    def _build_graph(self, n_partitions, graph, graph_weights):
         for i in range(1, n_partitions):
-            Graph[i, :] = numpy.max(Graph[i - 1, self._entering_edges], axis=1) + graph_weights
+            graph[i, :] = numpy.max(graph[i - 1, self._entering_edges], axis=1) + self._get_weights(i, graph_weights)
 
-    def _build_graph_different_weights(self, n_partitions, Graph, Graph_weights):
-        Graph[0, :] = Graph_weights[0, :]
-        for i in range(1, n_partitions):
-            Graph[i, :] = numpy.max(Graph[i - 1, self._entering_edges], axis=1) + Graph_weights[i, :]
-
-    # todo add verification for graph weights shape
-    def find_max_string(self, Graph_weights, y_length):
+    def find_max_string(self, graph_weights, y_length):
         n_partitions = y_length - self._n + 1
-        Graph = numpy.empty((2, self._n_gram_count))
-        Predecessors = numpy.empty((n_partitions - 1, self._n_gram_count), dtype=numpy.int)
-        Graph[0, :] = self._get_weights(0, Graph_weights)
-        self._build_graph_with_predecessors(n_partitions, Graph, Graph_weights, Predecessors)
-        max_string_last_index = numpy.argmax(Graph[0, :])
-        max_string = self._build_max_string(n_partitions - 2, Predecessors, max_string_last_index)
+        self._verify_graph_weights_and_y_length(graph_weights, n_partitions)
+        graph = self._initialize_graph(2, graph_weights)
+        predecessors = numpy.empty((n_partitions - 1, self._n_gram_count), dtype=numpy.int)
+        self._build_graph_with_predecessors(n_partitions, graph, graph_weights, predecessors)
+        partition_index, n_gram_index = self._get_max_string_end_indexes(graph, n_partitions)
+        max_string = self._build_max_string(partition_index, n_gram_index, predecessors)
         return max_string
 
-    def _build_graph_with_predecessors(self, n_partitions, Graph, Graph_weights, Predecessors):
+    def _build_graph_with_predecessors(self, n_partitions, graph, graph_weights, predecessors):
         for i in range(1, n_partitions):
-            max_entering_edge_indexes = numpy.argmax(Graph[0, self._entering_edges], axis=1)
-            Predecessors[i - 1, :] = self._entering_edges[self._n_gram_indexes, max_entering_edge_indexes]
-            Graph[1, :] = Graph[0, Predecessors[i - 1, :]] + self._get_weights(i, Graph_weights)
-            Graph[0, :] = Graph[1, :]
+            max_entering_edge_indexes = numpy.argmax(graph[0, self._entering_edges], axis=1)
+            predecessors[i - 1, :] = self._entering_edges[self._n_gram_indexes, max_entering_edge_indexes]
+            graph[1, :] = graph[0, predecessors[i - 1, :]] + self._get_weights(i, graph_weights)
+            graph[0, :] = graph[1, :]
 
-    # todo add verification min max length
-    def find_max_string_in_length_range(self, Graph_weights, min_y_length, max_y_length, is_normalized):
+    def _get_max_string_end_indexes(self, graph, n_partitions):
+        n_gram_index = numpy.argmax(graph[0, :])
+        partition_index = n_partitions - 2
+        return partition_index, n_gram_index
+
+    def find_max_string_in_length_range(self, graph_weights, min_y_length, max_y_length, is_normalized):
+        min_partition_index, n_partitions = self._get_min_max_partition(graph_weights, max_y_length, min_y_length)
+        graph = self._initialize_graph(n_partitions, graph_weights)
+        predecessors = numpy.empty((n_partitions - 1, self._n_gram_count), dtype=numpy.int)
+        self._build_complete_graph_with_predecessors(n_partitions, graph, graph_weights, predecessors)
+        end_indexes = self._get_max_string_end_indexes_in_range(graph, min_partition_index, n_partitions, is_normalized)
+        max_string = self._build_max_string(end_indexes[0], end_indexes[1], predecessors)
+        return max_string
+
+    def _get_min_max_partition(self, graph_weights, max_y_length, min_y_length):
         n_partitions = max_y_length - self._n + 1
+        min_y_length = max(self._n, min_y_length)
+        self._verify_graph_weights_and_y_length(graph_weights, n_partitions)
+        self._verify_min_max_length(min_y_length, max_y_length)
         min_partition_index = min_y_length - self._n
-        Graph = numpy.empty((n_partitions, self._n_gram_count))
-        Predecessors = numpy.empty((n_partitions - 1, self._n_gram_count), dtype=numpy.int)
-        Graph[0, :] = self._get_weights(0, Graph_weights)
-        self._build_complete_graph_with_predecessors(n_partitions, Graph, Graph_weights, Predecessors)
-        last_partition_index, last_n_gram_index, = self._get_max_string_end_indexes(Graph, min_partition_index,
-                                                                                    n_partitions, is_normalized)
-        max_string = self._build_max_string(last_partition_index + min_partition_index - 1, Predecessors,
-                                            last_n_gram_index)
-        return max_string
+        return min_partition_index, n_partitions
 
-    def _build_complete_graph_with_predecessors(self, n_partitions, Graph, Graph_weights, Predecessors):
+    def _initialize_graph(self, n_partitions, graph_weights):
+        graph = numpy.empty((n_partitions, self._n_gram_count))
+        graph[0, :] = self._get_weights(0, graph_weights)
+        return graph
+
+    def _build_complete_graph_with_predecessors(self, n_partitions, graph, graph_weights, predecessors):
         for i in range(1, n_partitions):
-            max_entering_edge_indexes = numpy.argmax(Graph[i - 1, self._entering_edges], axis=1)
-            Predecessors[i - 1, :] = self._entering_edges[self._n_gram_indexes, max_entering_edge_indexes]
-            Graph[i, :] = Graph[i - 1, Predecessors[i - 1, :]] + self._get_weights(i, Graph_weights)
+            max_entering_edge_indexes = numpy.argmax(graph[i - 1, self._entering_edges], axis=1)
+            predecessors[i - 1, :] = self._entering_edges[self._n_gram_indexes, max_entering_edge_indexes]
+            graph[i, :] = graph[i - 1, predecessors[i - 1, :]] + self._get_weights(i, graph_weights)
 
-    def _get_max_string_end_indexes(self, Graph, min_partition, n_partitions, is_normalized):
+    def _get_weights(self, i, graph_weights):
+        if graph_weights.ndim == 1:
+            partition_weights = graph_weights
+        else:
+            partition_weights = graph_weights[i, :]
+        return partition_weights
+
+    def _get_max_string_end_indexes_in_range(self, graph, min_partition, n_partitions, is_normalized):
+        norm = [n_gram_count for n_gram_count in range(min_partition + 1, n_partitions + 1)]
+        norm = numpy.array(norm).reshape(-1, 1)
         if is_normalized:
-            norm = [numpy.sqrt(n_gram_count) for n_gram_count in range(min_partition + 1, n_partitions + 1)]
-            norm = numpy.array(norm).reshape(-1, 1)
-            Graph[min_partition:, :] *= 1. / norm
-            end_indexes = numpy.unravel_index(numpy.argmax(Graph[min_partition:, :]), Graph[min_partition:, :].shape)
+            graph[min_partition:, :] *= 1. / numpy.sqrt(norm)
+            end_indexes = numpy.unravel_index(numpy.argmax(graph[min_partition:, :]), graph[min_partition:, :].shape)
         else:
-            norm = [n_gram_count for n_gram_count in range(min_partition + 1, n_partitions + 1)]
-            norm = numpy.array(norm).reshape(-1, 1)
-            Graph[min_partition:, :] = norm - 2 * Graph[min_partition:, :]
-            end_indexes = numpy.unravel_index(numpy.argmin(Graph[min_partition:, :]), Graph[min_partition:, :].shape)
-        return end_indexes
+            graph[min_partition:, :] = norm - 2 * graph[min_partition:, :]
+            end_indexes = numpy.unravel_index(numpy.argmin(graph[min_partition:, :]), graph[min_partition:, :].shape)
+        partition_index = end_indexes[0] + min_partition - 1
+        return partition_index, end_indexes[1]
 
-    def _get_weights(self, i, Graph_weights):
-        if Graph_weights.ndim == 1:
-            graph_weights = Graph_weights
-        else:
-            graph_weights = Graph_weights[i, :]
-        return graph_weights
-
-    def _build_max_string(self, last_partition_index, Predecessors, max_string_last_index):
-        max_string = self._index_to_n_gram[max_string_last_index]
-        best_index = max_string_last_index
-        for i in range(last_partition_index, -1, -1):
-            best_index = Predecessors[i, best_index]
+    def _build_max_string(self, partition_index, n_gram_index, predecessors):
+        max_string = self._index_to_n_gram[n_gram_index]
+        best_index = n_gram_index
+        for i in range(partition_index, -1, -1):
+            best_index = predecessors[i, best_index]
             max_string = self._index_to_n_gram[best_index][0] + max_string
         return max_string
+
+    def _verify_graph_weights_and_y_length(self, graph_weights, n_partitions):
+        if n_partitions <= 0:
+            raise InvalidYLengthError(self._n, n_partitions + self._n - 1)
+        valid_shapes = [(self._n_gram_count,), (n_partitions, self._n_gram_count)]
+        if graph_weights.shape not in valid_shapes:
+            raise InvalidShapeError('graph_weights', graph_weights.shape, valid_shapes)
+
+    def _verify_min_max_length(self, min_length, max_length):
+        if min_length > max_length:
+            raise InvalidMinLengthError(min_length, max_length)
