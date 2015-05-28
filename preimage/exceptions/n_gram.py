@@ -46,3 +46,9 @@ class NoThresholdsError(ValueError):
     def __str__(self):
         error_message = 'thresholds must be provided when y_length is None'
         return error_message
+
+
+class NoYLengthsError(ValueError):
+    def __str__(self):
+        error_message = "y_lengths can't be None if is_using_length = True"
+        return error_message
