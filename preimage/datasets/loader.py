@@ -24,8 +24,10 @@ def load_ocr_letters(fold_id=0):
     data = __load_gz_pickle_file('ocrletters.pickle.gz')
     train_indexes = numpy.where(data['fold_ids'] == fold_id)
     test_indexes = numpy.where(data['fold_ids'] != fold_id)
-    train_dataset = StructuredOutputDataset(data['X'][train_indexes], data['y'][train_indexes])
-    test_dataset = StructuredOutputDataset(data['X'][test_indexes], data['y'][test_indexes])
+    Y_train = numpy.array(data['y'], dtype=numpy.str)[train_indexes]
+    Y_test = numpy.array(data['y'], dtype=numpy.str)[test_indexes]
+    train_dataset = StructuredOutputDataset(data['X'][train_indexes], Y_train)
+    test_dataset = StructuredOutputDataset(data['X'][test_indexes], Y_test)
     return train_dataset, test_dataset
 
 
@@ -46,7 +48,8 @@ def load_bpps_dataset():
 
 def __load_peptide_dataset(file_name):
     data = __load_pickle_file(file_name)
-    train_dataset = StandardDataset(data['X'], data['y'])
+    X = numpy.array(data['X'], dtype=numpy.str)
+    train_dataset = StandardDataset(X, data['y'])
     return train_dataset
 
 
