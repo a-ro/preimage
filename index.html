@@ -68,6 +68,7 @@ inference_model = GenericStringModel(Alphabet.latin, n=3, sigma_position=10)
 from preimage.learners.structured_krr import StructuredKernelRidgeRegression
 
 poly_kernel = PolynomialKernel(degree=2)
+alpha = 0.001
 learner = StructuredKernelRidgeRegression(alpha, poly_kernel, inference_model)
 </code></pre>
 
@@ -76,6 +77,16 @@ learner = StructuredKernelRidgeRegression(alpha, poly_kernel, inference_model)
 
 <pre><code>learner.fit(train_dataset.X, train_dataset.Y, train_dataset.y_lengths)
 Y_predictions = learner.predict(test_dataset.X, test_dataset.y_lengths)
+</code></pre>
+
+<h2>
+<a id="evaluate-the-predictions" class="anchor" href="#evaluate-the-predictions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Evaluate the predictions</h2>
+
+<pre><code>from preimage.metrics.structured_output import zero_one_loss, hamming_loss, levenshtein_loss
+
+print('zero_one_loss', zero_one_loss(test_dataset.Y, Y_predictions))
+print('levenshtein_loss', levenshtein_loss(test_dataset.Y, Y_predictions))
+print('hamming_loss', hamming_loss(test_dataset.Y, Y_predictions))
 </code></pre>
 
 <h3>
