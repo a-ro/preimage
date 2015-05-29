@@ -21,8 +21,8 @@ class GenericStringModel(Model):
 
     def fit(self, inference_parameters):
         Model.fit(self, inference_parameters)
-        self.feature_space_ = GenericStringFeatureSpace(self._alphabet, self._n, inference_parameters.Y_train,
-                                                        self._sigma_position, self._is_normalized)
+        self._feature_space_ = GenericStringFeatureSpace(self._alphabet, self._n, inference_parameters.Y_train,
+                                                         self._sigma_position, self._is_normalized)
 
     def predict(self, Y_weights, y_lengths):
         if self._is_using_length:
@@ -35,10 +35,10 @@ class GenericStringModel(Model):
     def _predict_with_length(self, Y_weights, y_lengths):
         Y_predictions = []
         for y_weights, y_length in zip(Y_weights, y_lengths):
-            n_gram_weights = self.feature_space_.compute_weights(y_weights, y_length)
+            n_gram_weights = self._feature_space_.compute_weights(y_weights, y_length)
             graph = self._graph_builder.build_graph(n_gram_weights, y_length)
             node_creator = get_gs_node_creator(self._n, graph, n_gram_weights, y_length, self._n_gram_to_index,
-                                                   self._n_grams, self._sigma_position)
+                                               self._n_grams, self._sigma_position)
             y_predicted, y_bound = branch_and_bound(node_creator, y_length, self._alphabet, self._max_time)
             Y_predictions.append(y_predicted)
         return Y_predictions
@@ -46,10 +46,10 @@ class GenericStringModel(Model):
     def _predict_without_length(self, Y_weights):
         Y_predictions = []
         for y_weights in Y_weights:
-            n_gram_weights = self.feature_space_.compute_weights(y_weights, self._max_length_)
+            n_gram_weights = self._feature_space_.compute_weights(y_weights, self._max_length_)
             graph = self._graph_builder.build_graph(n_gram_weights, self._max_length_)
             node_creator = get_gs_node_creator(self._n, graph, n_gram_weights, self._max_length_,
-                                                   self._n_gram_to_index, self._n_grams, self._sigma_position)
+                                               self._n_gram_to_index, self._n_grams, self._sigma_position)
             y_predicted, y_bound = branch_and_bound_no_length(node_creator, self._min_length_, self._max_length_,
                                                               self._alphabet, self._max_time)
             Y_predictions.append(y_predicted)

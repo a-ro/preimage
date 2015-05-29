@@ -13,8 +13,8 @@ class WeightedDegreeModel(Model):
 
     def fit(self, inference_parameters):
         Model.fit(self, inference_parameters)
-        self.feature_space_ = WeightedDegreeFeatureSpace(self._alphabet, self._n, inference_parameters.Y_train,
-                                                         self._is_normalized)
+        self._feature_space_ = WeightedDegreeFeatureSpace(self._alphabet, self._n, inference_parameters.Y_train,
+                                                          self._is_normalized)
 
     def predict(self, Y_weights, y_lengths):
         if self._is_using_length:
@@ -27,7 +27,7 @@ class WeightedDegreeModel(Model):
     def _predict_with_length(self, Y_weights, y_lengths):
         Y_predictions = []
         for y_weights, y_length in zip(Y_weights, y_lengths):
-            n_gram_weights = self.feature_space_.compute_weights(y_weights, y_length)
+            n_gram_weights = self._feature_space_.compute_weights(y_weights, y_length)
             y_predicted = self._graph_builder.find_max_string(n_gram_weights, y_length)
             Y_predictions.append(y_predicted)
         return Y_predictions
@@ -35,8 +35,8 @@ class WeightedDegreeModel(Model):
     def _predict_without_length(self, Y_weights):
         Y_predictions = []
         for y_weights in Y_weights:
-            n_gram_weights = self.feature_space_.compute_weights(y_weights, self._max_length_)
+            n_gram_weights = self._feature_space_.compute_weights(y_weights, self._max_length_)
             y_predicted = self._graph_builder.find_max_string_in_length_range(n_gram_weights, self._min_length_,
-                                                                             self._max_length_, self._is_normalized)
+                                                                              self._max_length_, self._is_normalized)
             Y_predictions.append(y_predicted)
         return Y_predictions

@@ -20,8 +20,8 @@ class NGramModel(Model):
 
     def fit(self, inference_parameters):
         Model.fit(self, inference_parameters)
-        self.feature_space_ = NGramFeatureSpace(self._alphabet, self._n, inference_parameters.Y_train,
-                                                self._is_normalized)
+        self._feature_space_ = NGramFeatureSpace(self._alphabet, self._n, inference_parameters.Y_train,
+                                                 self._is_normalized)
 
     def predict(self, Y_weights, y_lengths):
         if self._is_using_length:
@@ -34,7 +34,7 @@ class NGramModel(Model):
     def _predict_with_length(self, Y_weights, y_lengths):
         Y_predictions = []
         for y_weights, y_length in zip(Y_weights, y_lengths):
-            n_gram_weights = self.feature_space_.compute_weights(y_weights)
+            n_gram_weights = self._feature_space_.compute_weights(y_weights)
             graph = self._graph_builder.build_graph(n_gram_weights, y_length)
             node_creator = get_n_gram_node_creator(self._n, graph, n_gram_weights, y_length, self._n_gram_to_index,
                                                    self._n_grams)
@@ -45,7 +45,7 @@ class NGramModel(Model):
     def _predict_without_length(self, Y_weights):
         Y_predictions = []
         for y_weights in Y_weights:
-            n_gram_weights = self.feature_space_.compute_weights(y_weights)
+            n_gram_weights = self._feature_space_.compute_weights(y_weights)
             graph = self._graph_builder.build_graph(n_gram_weights, self._max_length_)
             node_creator = get_n_gram_node_creator(self._n, graph, n_gram_weights, self._max_length_,
                                                    self._n_gram_to_index, self._n_grams)
