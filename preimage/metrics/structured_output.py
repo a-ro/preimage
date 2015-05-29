@@ -26,7 +26,7 @@ def hamming_loss(Y_true, Y_predicted):
     y_predicted_lengths = __get_length_of_each_y(Y_predicted)
     __check_each_tuple_y_true_y_predicted_has_same_length(y_true_lengths, y_predicted_lengths)
     n_errors = __get_n_letter_errors_for_each_y_predicted(Y_true, Y_predicted, y_true_lengths)
-    loss = numpy.mean(n_errors / y_true_lengths)
+    loss = numpy.mean(n_errors / numpy.array(y_true_lengths, dtype=numpy.float))
     return loss
 
 
@@ -52,7 +52,7 @@ def levenshtein_loss(Y_true, Y_predicted):
     __check_same_number_of_y(Y_true, Y_predicted)
     max_lengths = __get_max_length_of_each_tuple_y_true_y_predicted(Y_true, Y_predicted)
     distances = __get_levenshtein_distance_for_each_y_predicted(Y_true, Y_predicted)
-    loss = numpy.mean(distances / max_lengths)
+    loss = numpy.mean(distances / numpy.array(max_lengths, dtype=numpy.float))
     return loss
 
 
