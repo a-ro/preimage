@@ -60,6 +60,15 @@ from preimage.models.generic_string_model import GenericStringModel
 inference_model = GenericStringModel(Alphabet.latin, n=3, sigma_position=10)
 </code></pre>
 
+<h3>
+<a id="eulerian-path" class="anchor" href="#eulerian-path" aria-hidden="true"><span class="octicon octicon-link"></span></a>Eulerian Path</h3>
+
+<pre><code>from preimage.utils.alphabet import Alphabet
+from preimage.models.eulerian_path_model import EulerianPathModel
+
+inference_model = EulerianPathModel(Alphabet.latin, n=3)
+</code></pre>
+
 <h2>
 <a id="create-the-learner" class="anchor" href="#create-the-learner" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create the learner</h2>
 
