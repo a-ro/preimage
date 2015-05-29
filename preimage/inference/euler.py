@@ -72,7 +72,8 @@ class EulerianPath:
         non_zero_weight_count = rounded_weights.sum()
         # Avoid having zero n gram predicted
         if non_zero_weight_count < self._min_n_gram_count:
-            best_weight_indexes = numpy.argpartition(-weights, self._min_n_gram_count)[0:self._min_n_gram_count]
+            kth_indexes = numpy.arange(0, self._min_n_gram_count)
+            best_weight_indexes = numpy.argpartition(-weights, kth_indexes)[0:self._min_n_gram_count]
             best_zero_weight_indexes = best_weight_indexes[rounded_weights[best_weight_indexes] == 0]
             rounded_weights[best_zero_weight_indexes[0:self._min_n_gram_count - non_zero_weight_count]] = 1
         return rounded_weights
