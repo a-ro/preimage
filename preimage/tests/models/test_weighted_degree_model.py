@@ -7,6 +7,7 @@ from mock import patch, Mock
 
 from preimage.models.weighted_degree_model import WeightedDegreeModel
 from preimage.learners.structured_krr import InferenceFitParameters
+from preimage.exceptions.n_gram import NoYLengthsError
 
 
 class TestWeightedDegreeModel(unittest2.TestCase):
@@ -27,6 +28,8 @@ class TestWeightedDegreeModel(unittest2.TestCase):
         self.gram_matrix = numpy.array([[1, 0], [0, 1]])
         self.fit_parameters = InferenceFitParameters(self.weights, self.gram_matrix, Y=['a', 'ab'],
                                                      y_lengths=[1, 2])
+        self.fit_parameters_no_length = InferenceFitParameters(self.weights, self.gram_matrix, Y=['a', 'ab'],
+                                                               y_lengths=None)
 
     def setup_feature_space(self):
         self.n_gram_weights = [0, 1, 0]
@@ -43,6 +46,24 @@ class TestWeightedDegreeModel(unittest2.TestCase):
         self.graph_builder_mock.find_max_string_in_length_range.side_effect = self.Y_test_no_length
         self.graph_builder_path = patch('preimage.models.weighted_degree_model.GraphBuilder')
         self.graph_builder_path.start().return_value = self.graph_builder_mock
+
+    def test_model_with_length_fit_has_correct_min_max_lengths(self):
+        self.model_with_length.fit(self.fit_parameters)
+
+        self.assertEqual(self.model_with_length._min_length_, self.min_train_length)
+        self.assertEqual(self.model_with_length._max_length_, self.max_train_length)
+
+    def test_model_no_y_lengths_fit_has_correct_min_max_lengths(self):
+        self.model_with_length.fit(self.fit_parameters_no_length)
+
+        self.assertEqual(self.model_with_length._min_length_, self.min_train_length)
+        self.assertEqual(self.model_with_length._max_length_, self.max_train_length)
+
+    def test_no_y_lengths_model_with_length_raises_error(self):
+        self.model_with_length.fit(self.fit_parameters)
+
+        with self.assertRaises(NoYLengthsError):
+            self.model_with_length.predict(self.Y_weights, y_lengths=None)
 
     def test_model_with_length_predict_returns_expected_y(self):
         self.model_with_length.fit(self.fit_parameters)
@@ -71,7 +92,6 @@ class TestWeightedDegreeModel(unittest2.TestCase):
         Y = self.model_no_length.predict(self.Y_weights, y_lengths=self.y_lengths)
 
         numpy.testing.assert_array_equal(Y, self.Y_test_no_length)
-
 
     def test_model_no_length_predict_sends_correct_parameters_to_feature_space(self):
         self.model_no_length.fit(self.fit_parameters)

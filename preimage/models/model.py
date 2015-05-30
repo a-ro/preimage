@@ -28,7 +28,7 @@ class Model(BaseEstimator):
         self._min_length_ = numpy.min(y_lengths)
         self._max_length_ = numpy.max(y_lengths)
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
     def predict(self, Y_weights, y_lengths):
         return
 
