@@ -4,12 +4,14 @@ from mock import MagicMock
 import unittest2
 
 from preimage.inference.branch_and_bound import branch_and_bound, branch_and_bound_no_length
+from preimage.inference.branch_and_bound import branch_and_bound_multiple_solutions
 from preimage.inference.node_creator import NodeCreatorMock
 from preimage.inference.node import MaxNode
 
 
 def bound_side_effect_cb_best(y, final_length):
-    nodes = {'ab': MaxNode('ab', 1., 0, 0.), 'ac': MaxNode('ac', 0., 0, 0.), 'bb': MaxNode('bb', 1., 0, 0.),
+    nodes = {'aa': MaxNode('aa', 0., 0, 0.), 'ba': MaxNode('ba', 0., 0, 0.), 'ca': MaxNode('ca', 0, 0, 0.),
+             'ab': MaxNode('ab', 1., 0, 0.), 'ac': MaxNode('ac', 0., 0, 0.), 'bb': MaxNode('bb', 1.1, 0, 0.),
              'bc': MaxNode('bc', 0, 0, 0.), 'cb': MaxNode('cb', 1.5, 0, 0.), 'cc': MaxNode('cc', 0., 0, 0.)}
     return nodes[y]
 
@@ -301,6 +303,142 @@ class TestBranchAndBoundNoLength(unittest2.TestCase):
 
         self.assertEqual(y, 'abb')
         self.assertEqual(y_bound, self.abb_node_bound)
+
+
+class TestBranchAndBoundMultipleSolutions(unittest2.TestCase):
+    def setUp(self):
+        self.setup_alphabet()
+        self.setup_nodes()
+        self.time = 30
+
+    def setup_alphabet(self):
+        self.alphabet = ['a', 'b', 'c']
+
+    def setup_bound_calculator(self, start_nodes, bound_side_effect=bound_side_effect_cb_best):
+        bound_calculator_mock = MagicMock()
+        bound_calculator_mock.get_start_nodes.return_value = start_nodes
+        bound_calculator_mock.create_node.side_effect = bound_side_effect
+        self.bound_calculator = NodeCreatorMock(bound_calculator_mock)
+
+    def setup_bound_calculator_node_side_effect(self, start_nodes, bound_side_effect=bound_side_effect_cb_best):
+        self.bound_calculator_mock = MagicMock()
+        self.bound_calculator_mock.get_start_nodes.side_effect = start_nodes
+        self.bound_calculator_mock.create_node.side_effect = bound_side_effect
+        self.bound_calculator = NodeCreatorMock(self.bound_calculator_mock)
+
+    def setup_nodes(self):
+        self.b_node_bound = 2
+        self.ab_node_bound = 1.
+        self.bb_node_bound = 1.1
+        self.cb_node_bound = 1.5
+        self.bc_node_bound = 1.5
+        self.cc_node_bound = 1.6
+        self.acb_node_bound = 1.4
+        self.bbb_node_bound = 1.3
+        self.abb_node_bound = 1.3
+        self.a_b_c_nodes = [MaxNode('a', 0., 1., 0.), MaxNode('b', 2., 1., 2.), MaxNode('c', 1., 1., 1.)]
+        self.a_b_c_nodes_large_c = [MaxNode('a', 0., 0, 0.), MaxNode('b', 2., 0, 0), MaxNode('c', 1.6, 0, 0)]
+
+
+    def test_one_gram_length_one_branch_and_bound_returns_max_start_node(self):
+        y_length = 1
+        n_solutions = 1
+        self.setup_bound_calculator(self.a_b_c_nodes)
+
+        y, y_bound = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                         self.time)
+
+        self.assertEqual(y, ['b'])
+        self.assertEqual(y_bound, [self.b_node_bound])
+
+    def test_two_solutions_one_gram_length_two_branch_and_bound_returns_two_best_nodes(self):
+        y_length = 2
+        n_solutions = 2
+        self.setup_bound_calculator(self.a_b_c_nodes)
+
+        y, y_bounds = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                          self.time)
+
+        self.assertEqual(y, ['cb', 'bb'])
+        self.assertEqual(y_bounds, [self.cb_node_bound, self.bb_node_bound])
+
+    def test_one_gram_length_two_node_in_heap_better_than_first_solution_branch_and_bound_returns_best_node(self):
+        y_length = 2
+        n_solutions = 1
+        self.setup_bound_calculator(self.a_b_c_nodes_large_c)
+
+        y, y_bound = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                         self.time)
+
+        self.assertEqual(y, ['cb'])
+        self.assertEqual(y_bound, [self.cb_node_bound])
+
+
+    def test_three_solutions_node_in_heap_better_than_first_solution_branch_and_bound_returns_best_nodes(self):
+        y_length = 2
+        n_solutions = 3
+        self.setup_bound_calculator(self.a_b_c_nodes_large_c)
+
+        y, y_bound = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                         self.time)
+
+        self.assertEqual(y, ['cb', 'bb', 'ab'])
+        self.assertEqual(y_bound, [self.cb_node_bound, self.bb_node_bound, self.ab_node_bound])
+
+    def test_one_gram_length_two_other_solution_better_than_first_solution_branch_and_bound_returns_best_node(self):
+        y_length = 2
+        n_solutions = 1
+        self.setup_bound_calculator(self.a_b_c_nodes_large_c, bound_side_effect_cc_best)
+
+        y, y_bound = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                         self.time)
+
+        self.assertEqual(y, ['cc'])
+        self.assertEqual(y_bound, [self.cc_node_bound])
+
+    def test_two_solutions_better_than_first_solution_branch_and_bound_returns_two_best_nodes(self):
+        y_length = 2
+        n_solutions = 2
+        self.setup_bound_calculator(self.a_b_c_nodes_large_c, bound_side_effect_cc_best)
+
+        y, y_bound = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                         self.time)
+
+        self.assertEqual(y, ['cc', 'cb'])
+        self.assertEqual(y_bound, [self.cc_node_bound, self.cb_node_bound])
+
+    def test_one_gram_length_three_branch_and_bound_returns_best_node(self):
+        y_length = 3
+        n_solutions = 1
+        self.setup_bound_calculator(self.a_b_c_nodes, bound_side_effect_acb_best)
+
+        y, y_bound = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                         self.time)
+
+        self.assertEqual(y, ['acb'])
+        self.assertEqual(y_bound, [self.acb_node_bound])
+
+    def test_one_gram_length_three_other_solution_better_than_first_three_branch_and_bound_returns_best_node(self):
+        y_length = 3
+        n_solutions = 1
+        self.setup_bound_calculator(self.a_b_c_nodes, bound_side_effect_bbb_best)
+
+        y, y_bound = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                         self.time)
+
+        self.assertEqual(y, ['bbb'])
+        self.assertEqual(y_bound, [self.bbb_node_bound])
+
+    def test_one_gram_length_three_other_nodes_better_than_solution_branch_and_bound_returns_best_node(self):
+        y_length = 3
+        n_solutions = 1
+        self.setup_bound_calculator(self.a_b_c_nodes_large_c, bound_side_effect_abb_best_with_two_heap_pop)
+
+        y, y_bound = branch_and_bound_multiple_solutions(self.bound_calculator, y_length, n_solutions, self.alphabet,
+                                                         self.time)
+
+        self.assertEqual(y, ['abb'])
+        self.assertEqual(y_bound, [self.abb_node_bound])
 
 
 if __name__ == '__main__':
