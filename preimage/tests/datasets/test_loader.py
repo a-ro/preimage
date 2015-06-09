@@ -1,5 +1,6 @@
 __author__ = 'amelie'
 
+import numpy
 import unittest2
 
 from preimage.datasets import loader
@@ -13,6 +14,9 @@ class TestLoader(unittest2.TestCase):
         self.ocr_n_examples_not_in_fold = [6251, 6173, 6193, 6179, 6184, 6226, 6138, 6160, 6187, 6202]
         self.camps_n_examples = 101
         self.bpps_n_examples = 31
+        self.amino_acids = ['A', 'B', 'C']
+        self.amino_acid_descriptors = [[4, -1, -2], [-1,  5,  0], [-2,  0,  6]]
+        self.amino_acid_file = 'AA.example.dat'
 
     def test_load_ocr_letters_has_correct_number_of_x_in_fold(self):
         for fold_id in range(10):
@@ -69,6 +73,16 @@ class TestLoader(unittest2.TestCase):
         n_examples = dataset.y.shape[0]
 
         self.assertEqual(n_examples, self.bpps_n_examples)
+
+    def test_load_amino_acids_returns_expected_amino_acids(self):
+        amino_acids, descriptors = loader.load_amino_acids_and_descriptors(self.amino_acid_file)
+
+        numpy.testing.assert_array_equal(amino_acids, self.amino_acids)
+
+    def test_load_amino_acid_descriptors_returns_expected_descriptors(self):
+        amino_acids, descriptors = loader.load_amino_acids_and_descriptors(self.amino_acid_file)
+
+        numpy.testing.assert_array_equal(descriptors, self.amino_acid_descriptors)
 
 
 if __name__ == '__main__':

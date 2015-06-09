@@ -6,6 +6,8 @@ from os.path import dirname, join
 
 import numpy
 
+from preimage.datasets.amino_acid_file import AminoAcidFile
+
 
 class StructuredOutputDataset:
     def __init__(self, X, Y):
@@ -58,3 +60,13 @@ def __load_pickle_file(file_name):
     data_file = open(join(module_path, file_name), 'rb')
     data = pickle.load(data_file)
     return data
+
+
+def load_amino_acids_and_descriptors(file_name=AminoAcidFile.blosum62_natural):
+    path_to_file = join(dirname(__file__), 'amino_acid_matrix', file_name)
+    with open(path_to_file, 'r') as data_file:
+        lines = data_file.readlines()
+    splitted_lines = numpy.array([line.split() for line in lines])
+    amino_acids = [str(letter) for letter in splitted_lines[:, 0]]
+    descriptors = numpy.array(splitted_lines[:, 1:], dtype=numpy.float)
+    return amino_acids, descriptors
