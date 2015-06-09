@@ -1,4 +1,5 @@
 cimport numpy
+
 from node cimport MaxNode
 from bound_calculator cimport BoundCalculator, Bound, FLOAT64_t
 

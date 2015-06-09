@@ -1,5 +1,6 @@
 from libc.math cimport sqrt
 
+
 cdef class NodeCreator:
     def __init__(self, min_bound_calculator, max_bound_calculator, n_grams):
         self.min_bound_calculator = min_bound_calculator
