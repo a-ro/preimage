@@ -18,6 +18,8 @@ ext_modules = [
     Extension("preimage.inference._node", ["preimage/inference/_node.pyx"],
               include_dirs=[numpy.get_include()]),
     Extension("preimage.inference._node_creator", ["preimage/inference/_node_creator.pyx"],
+              include_dirs=[numpy.get_include()]),
+    Extension("preimage.features.gs_similarity_weights", ["preimage/features/gs_similarity_weights.pyx"],
               include_dirs=[numpy.get_include()])
 ]
 
