@@ -10,6 +10,7 @@ from preimage.exceptions.n_gram import InvalidNGramLengthError
 class TestAlphabet(unittest2.TestCase):
     def setUp(self):
         self.a_b_alphabet = ['a', 'b']
+        self.abc_alphabet = ['a', 'b', 'c']
         self.two_grams = ['aa', 'ab', 'ba', 'bb']
         self.one_gram_to_index = {'a': 0, 'b': 1}
         self.two_gram_to_index = {'aa': 0, 'ab': 1, 'ba': 2, 'bb': 3}
@@ -17,8 +18,8 @@ class TestAlphabet(unittest2.TestCase):
         self.index_to_two_gram = {0: 'aa', 1: 'ab', 2: 'ba', 3: 'bb'}
         self.cab = ['cab']
         self.cab_aa = ['cab', 'aa']
-        self.cab_int = [[99, 97, 98]]
-        self.cab_aa_int = [[99, 97, 98], [97, 97, -1]]
+        self.cab_int = [[2, 0, 1]]
+        self.cab_aa_int = [[2, 0, 1], [0, 0, -1]]
 
     def test_integer_n_is_zero_get_n_grams_raises_value_error(self):
         with self.assertRaises(ValueError):
@@ -63,12 +64,12 @@ class TestAlphabet(unittest2.TestCase):
             alphabet.get_index_to_n_gram(self.a_b_alphabet, n=0)
 
     def test_one_string_transform_strings_to_integer_returns_integer_string(self):
-        Y_int = alphabet.transform_strings_to_integer_lists(Y=self.cab)
+        Y_int = alphabet.transform_strings_to_integer_lists(self.cab, self.abc_alphabet)
 
         numpy.testing.assert_array_equal(Y_int, self.cab_int)
 
     def test_two_strings_different_length_transform_strings_to_integer_returns_integer_strings(self):
-        Y_int = alphabet.transform_strings_to_integer_lists(Y=self.cab_aa)
+        Y_int = alphabet.transform_strings_to_integer_lists(self.cab_aa, self.abc_alphabet)
 
         numpy.testing.assert_array_equal(Y_int, self.cab_aa_int)
 

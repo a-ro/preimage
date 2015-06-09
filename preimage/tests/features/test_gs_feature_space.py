@@ -41,7 +41,7 @@ class TestGSFeatureSpace(unittest2.TestCase):
         self.feature_space_two_gram_abb_abaaa = csr_matrix([[0, 1., 0, 0, 0, 0, 0, 1., 0, 0, 0, 0, 0, 0, 0, 0],
                                                             [0, 1., 0, 0, 0, 0, 1., 0, 1., 0, 0, 0, 1., 0, 0, 0]])
         self.feature_space_normalized_one_abb = [[1. / sqrt(3), 0, 0, 1. / sqrt(3), 0, 1. / sqrt(3)]]
-        self.feature_space_normalized_two_gram_abb_abaa = [
+        self.feature_space_normalized_two_gram_abb_abaaa = [
             [0, 1. / sqrt(2), 0, 0, 0, 0, 0, 1. / sqrt(2), 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 1. / sqrt(3), 0, 0, 0, 0, 1. / sqrt(3), 0, 1. / sqrt(3), 0, 0, 0,
              1. / sqrt(3), 0, 0, 0]]
@@ -140,7 +140,7 @@ class TestGSFeatureSpace(unittest2.TestCase):
                                                   is_normalized=True)
         normalized_feature_space = feature_space._feature_space.toarray()
 
-        numpy.testing.assert_array_equal(normalized_feature_space, self.feature_space_normalized_two_gram_abb_abaa)
+        numpy.testing.assert_array_equal(normalized_feature_space, self.feature_space_normalized_two_gram_abb_abaaa)
 
 
 if __name__ == '__main__':

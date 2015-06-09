@@ -31,14 +31,15 @@ def get_n_grams(alphabet, n):
     if n <= 0:
         raise InvalidNGramLengthError(n)
     n_grams = [''.join(n_gram) for n_gram in product(alphabet, repeat=n)]
-    return numpy.array(n_grams)
+    return n_grams
 
 
-def transform_strings_to_integer_lists(Y):
+def transform_strings_to_integer_lists(Y, alphabet):
+    letter_to_int = get_n_gram_to_index(alphabet, 1)
     n_examples = numpy.array(Y).shape[0]
     max_length = numpy.max([len(y) for y in Y])
     Y_int = numpy.zeros((n_examples, max_length), dtype=numpy.int8) - 1
     for y_index, y in enumerate(Y):
         for letter_index, letter in enumerate(y):
-            Y_int[y_index, letter_index] = ord(letter)
+            Y_int[y_index, letter_index] = letter_to_int[letter]
     return Y_int

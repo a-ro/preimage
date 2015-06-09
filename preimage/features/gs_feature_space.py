@@ -17,16 +17,16 @@ class GenericStringFeatureSpace:
         self._alphabet_n_gram_count = len(alphabet) ** n
         self._feature_space = build_feature_space_with_positions(alphabet, self._n, Y)
         self._max_n_gram_count = self._get_max_n_gram_count(self._alphabet_n_gram_count, self._feature_space)
-        self._normalize(self._feature_space, self._n, Y, sigma_position, is_normalized)
+        self._normalize(self._feature_space, self._n, Y, sigma_position, is_normalized, alphabet)
 
     def _get_max_n_gram_count(self, alphabet_n_gram_count, feature_space):
         n_columns = feature_space.shape[1]
         max_n_gram_count = int(n_columns / alphabet_n_gram_count)
         return max_n_gram_count
 
-    def _normalize(self, feature_space, n, Y, sigma_position, is_normalized):
+    def _normalize(self, feature_space, n, Y, sigma_position, is_normalized, alphabet):
         if is_normalized:
-            y_y_similarity = element_wise_kernel(Y, sigma_position, n)
+            y_y_similarity = element_wise_kernel(Y, sigma_position, n, alphabet)
             y_normalization = 1. / numpy.sqrt(y_y_similarity)
             data_normalization = y_normalization.repeat(numpy.diff(feature_space.indptr))
             feature_space.data *= data_normalization
