@@ -2,8 +2,9 @@ __author__ = 'amelie'
 
 import unittest2
 import numpy
+from mock import Mock
 
-from preimage.inference.bound_calculator import MaxBoundCalculator, OCRMinBoundCalculator
+from preimage.inference.bound_calculator import MaxBoundCalculator, OCRMinBoundCalculator, PeptideMinBoundCalculator
 
 
 class TestMaxBoundCalculator(unittest2.TestCase):
@@ -110,7 +111,6 @@ class TestMaxBoundCalculator(unittest2.TestCase):
 
         self.assertEqual(bound['real_value'], self.weights_one_gram[2, 1])
         self.assertEqual(bound['bound_value'], self.graph_one_gram[2, 1])
-
 
     def test_one_gram_length_three_ab_compute_bound_returns_expected_bound(self):
         length = 3
@@ -254,6 +254,174 @@ class TestOCRMinBoundCalculator(unittest2.TestCase):
         bound = self.bound_calculator_two_gram.compute_bound_python('bb', parent_value, length)
 
         self.assertDictEqual(bound, self.bb_two_gram_length_three)
+
+
+class TestPeptideMinBoundCalculator(unittest2.TestCase):
+    def setUp(self):
+        self.setup_alphabet()
+        self.setup_position_and_similarity_matrix()
+        self.setup_bounds()
+
+    def setup_alphabet(self):
+        self.one_grams = ['a', 'b', 'c']
+        self.small_alphabet = ['a', 'b']
+        self.two_grams = ['aa', 'ab', 'ba', 'bb']
+        self.letter_to_index = {'a': 0, 'b': 1, 'c': 2}
+
+    def setup_position_and_similarity_matrix(self):
+        self.similarity_matrix_one_gram = numpy.array([[1, 0.5, 0.1], [0.5, 1, 0.2], [0.1, 0.2, 1]],
+                                                      dtype=numpy.float64)
+        self.similarity_matrix_two_gram = numpy.array([[1, 0.5], [0.5, 1]], dtype=numpy.float64)
+        self.position_matrix_small_sigma = numpy.eye(5, dtype=numpy.float64)
+        self.position_matrix_large_sigma = numpy.ones((5, 5), dtype=numpy.float64)
+
+    def setup_bound_calculator_one_gram(self, length, position_matrix):
+        n = 1
+        gs_kernel_small_sigma_p_mock = Mock()
+        gs_kernel_small_sigma_p_mock.get_alphabet_similarity_matrix.return_value = self.similarity_matrix_one_gram
+        gs_kernel_small_sigma_p_mock.get_position_matrix.return_value = position_matrix
+        gs_kernel_small_sigma_p_mock.element_wise_kernel.return_value = self.one_gram_real_values
+        self.bound_calculator = PeptideMinBoundCalculator(n, len(self.one_grams), self.one_grams, self.letter_to_index,
+                                                          length, gs_kernel_small_sigma_p_mock)
+
+    def setup_bound_calculator_two_gram(self, length, position_matrix, real_values):
+        n = 2
+        gs_kernel_large_sigma_p_mock = Mock()
+        gs_kernel_large_sigma_p_mock.get_alphabet_similarity_matrix.return_value = self.similarity_matrix_two_gram
+        gs_kernel_large_sigma_p_mock.get_position_matrix.return_value = position_matrix
+        gs_kernel_large_sigma_p_mock.element_wise_kernel.return_value = real_values
+        self.bound_calculator = PeptideMinBoundCalculator(n, len(self.small_alphabet), self.two_grams,
+                                                          self.letter_to_index,
+                                                          length, gs_kernel_large_sigma_p_mock)
+
+    def setup_bounds(self):
+        self.one_gram_real_values = numpy.array([1., 1., 1.])
+        self.two_gram_real_values = numpy.array([3., 3., 3., 3.])
+        self.two_gram_large_sigma_p_real_values = numpy.array([5., 4., 4., 5.])
+        self.start_bounds_one_gram_large_sigma_length_three = [3.6, 4., 3.6]
+        self.start_bounds_two_gram_large_sigma_length_three = [9.5, 9.5, 9.5, 9.5]
+        self.start_bounds_two_gram_large_sigma_length_three = [15.5, 16.5, 16.5, 15.5]
+        self.a_length_one_bound = {'real_value': 1, 'bound_value': 1}
+        self.aa_small_sigma_bound = {'real_value': 2, 'bound_value': 2}
+        self.ba_large_sigma_bound = {'real_value': 3, 'bound_value': 3}
+        self.aa_large_sigma_bound = {'real_value': 4, 'bound_value': 4}
+        self.aa_length_four_large_sigma_bound = {'real_value': 4, 'bound_value': 7}
+        self.aa_length_three_large_sigma_bound = {'real_value': 4, 'bound_value': 5.4}
+        self.abb_two_gram_length_three_large_sigma = {'real_value': 10, 'bound_value': 26.5}
+
+    def test_one_gram_length_one_start_node_real_values_returns_expected_values(self):
+        length = 1
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_small_sigma)
+
+        real_values = self.bound_calculator.get_start_node_real_values_python(length)
+
+        numpy.testing.assert_array_almost_equal(real_values, self.one_gram_real_values)
+
+
+    def test_two_gram_length_three_start_node_real_values_returns_expected_values(self):
+        length = 3
+        self.setup_bound_calculator_two_gram(length, self.position_matrix_small_sigma, self.two_gram_real_values)
+
+        real_values = self.bound_calculator.get_start_node_real_values_python(length)
+
+        numpy.testing.assert_array_almost_equal(real_values, self.two_gram_real_values)
+
+    def test_one_gram_length_one_start_nodes_bound_values_is_one(self):
+        length = 1
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_small_sigma)
+
+        bound_values = self.bound_calculator.get_start_node_bounds_python(length)
+
+        numpy.testing.assert_array_almost_equal(bound_values, numpy.ones(len(self.one_grams)))
+
+
+    def test_one_gram_length_two_small_sigma_p_start_node_bound_values_is_two(self):
+        length = 2
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_small_sigma)
+
+        bound_values = self.bound_calculator.get_start_node_bounds_python(length)
+
+        numpy.testing.assert_array_almost_equal(bound_values, 2 * numpy.ones(len(self.one_grams)))
+
+    def test_one_gram_length_three_large_sigma_p_start_node_bound_values_returns_expected_value(self):
+        length = 3
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_large_sigma)
+
+        bound_values = self.bound_calculator.get_start_node_bounds_python(length)
+
+        numpy.testing.assert_array_almost_equal(bound_values, self.start_bounds_one_gram_large_sigma_length_three)
+
+    def test_two_gram_length_three_small_sigma_p_start_node_bound_values_returns_expected_value(self):
+        length = 3
+        self.setup_bound_calculator_two_gram(length, self.position_matrix_small_sigma, self.two_gram_real_values)
+
+        bound_values = self.bound_calculator.get_start_node_bounds_python(length)
+
+        numpy.testing.assert_array_almost_equal(bound_values, self.two_gram_real_values + 2)
+
+    def test_two_gram_length_three_large_sigma_p_start_node_bound_values_returns_expected_value(self):
+        length = 4
+        self.setup_bound_calculator_two_gram(length, self.position_matrix_large_sigma,
+                                             self.two_gram_large_sigma_p_real_values)
+
+        bound_values = self.bound_calculator.get_start_node_bounds_python(length)
+
+        numpy.testing.assert_array_almost_equal(bound_values, self.start_bounds_two_gram_large_sigma_length_three)
+
+
+    def test_one_gram_length_one_compute_bound_returns_expected_bound(self):
+        length = 1
+        parent_value = 0
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_small_sigma)
+
+        bound = self.bound_calculator.compute_bound_python('a', parent_value, length)
+
+        self.assertDictEqual(bound, self.a_length_one_bound)
+
+    def test_one_gram_length_two_small_sigma_compute_bound_returns_expected_bound(self):
+        length = 2
+        parent_value = 1
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_small_sigma)
+
+        bound = self.bound_calculator.compute_bound_python('aa', parent_value, length)
+
+        self.assertDictEqual(bound, self.aa_small_sigma_bound)
+
+    def test_one_gram_length_two_large_sigma_compute_bound_returns_expected_bound(self):
+        length = 2
+        parent_value = 1
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_large_sigma)
+
+        bound = self.bound_calculator.compute_bound_python('ba', parent_value, length)
+
+        self.assertDictEqual(bound, self.ba_large_sigma_bound)
+
+    def test_one_gram_length_three_large_sigma_compute_bound_returns_expected_bound(self):
+        length = 3
+        parent_value = 1
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_large_sigma)
+
+        bound = self.bound_calculator.compute_bound_python('aa', parent_value, length)
+
+        self.assertDictEqual(bound, self.aa_length_three_large_sigma_bound)
+
+    def test_one_gram_length_four_large_sigma_compute_bound_returns_expected_bound(self):
+        length = 4
+        parent_value = 1
+        self.setup_bound_calculator_one_gram(length, self.position_matrix_large_sigma)
+
+        bound = self.bound_calculator.compute_bound_python('aa', parent_value, length)
+
+        self.assertDictEqual(bound, self.aa_length_four_large_sigma_bound)
+
+    def test_two_gram_length_five_large_sigma_compute_bound_returns_expected_bound(self):
+        length = 5
+        parent_value = 5
+        self.setup_bound_calculator_two_gram(length, self.position_matrix_large_sigma, self.two_gram_real_values)
+
+        bound = self.bound_calculator.compute_bound_python('abb', parent_value, length)
+
+        self.assertDictEqual(bound, self.abb_two_gram_length_three_large_sigma)
 
 
 if __name__ == '__main__':
