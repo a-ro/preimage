@@ -3,7 +3,7 @@ __author__ = 'amelie'
 from preimage.features.n_gram_feature_space import NGramFeatureSpace
 from preimage.models.model import Model
 from preimage.inference.graph_builder import GraphBuilder
-from preimage.inference._branch_and_bound import branch_and_bound, branch_and_bound_no_length
+from preimage.inference.branch_and_bound import branch_and_bound, branch_and_bound_no_length
 from preimage.inference.bound_factory import get_n_gram_node_creator
 from preimage.utils.alphabet import get_n_gram_to_index, get_n_grams
 

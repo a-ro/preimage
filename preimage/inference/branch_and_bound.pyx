@@ -5,8 +5,8 @@ import heapq
 import numpy
 cimport numpy
 import time
-from preimage.inference._node cimport MaxNode
-from preimage.inference._node_creator cimport NodeCreator
+from preimage.inference.node cimport MaxNode
+from preimage.inference.node_creator cimport NodeCreator
 
 
 ctypedef numpy.float64_t FLOAT64_t

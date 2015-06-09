@@ -3,9 +3,9 @@ __author__ = 'amelie'
 from mock import MagicMock
 import unittest2
 
-from preimage.inference._branch_and_bound import branch_and_bound, branch_and_bound_no_length
-from preimage.inference._node_creator import NodeCreatorMock
-from preimage.inference._node import MaxNode
+from preimage.inference.branch_and_bound import branch_and_bound, branch_and_bound_no_length
+from preimage.inference.node_creator import NodeCreatorMock
+from preimage.inference.node import MaxNode
 
 
 def bound_side_effect_cb_best(y, final_length):

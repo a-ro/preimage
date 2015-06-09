@@ -1,5 +1,5 @@
 from libc.math cimport sqrt
-from _node cimport MaxNode
+from node cimport MaxNode
 cimport numpy
 import numpy
 

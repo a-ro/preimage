@@ -1,5 +1,5 @@
 cimport numpy
-from _node cimport MaxNode
+from node cimport MaxNode
 
 
 ctypedef numpy.float64_t FLOAT64_t

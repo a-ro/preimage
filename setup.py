@@ -11,13 +11,13 @@ from Cython.Distutils import build_ext
 ext_modules = [
     Extension("preimage.kernels._generic_string", ["preimage/kernels/_generic_string.pyx"],
               include_dirs=[numpy.get_include()]),
-    Extension("preimage.inference._branch_and_bound", ["preimage/inference/_branch_and_bound.pyx"],
+    Extension("preimage.inference.branch_and_bound", ["preimage/inference/branch_and_bound.pyx"],
               include_dirs=[numpy.get_include()]),
-    Extension("preimage.inference._bound_calculator", ["preimage/inference/_bound_calculator.pyx"],
+    Extension("preimage.inference.bound_calculator", ["preimage/inference/bound_calculator.pyx"],
               include_dirs=[numpy.get_include()]),
-    Extension("preimage.inference._node", ["preimage/inference/_node.pyx"],
+    Extension("preimage.inference.node", ["preimage/inference/node.pyx"],
               include_dirs=[numpy.get_include()]),
-    Extension("preimage.inference._node_creator", ["preimage/inference/_node_creator.pyx"],
+    Extension("preimage.inference.node_creator", ["preimage/inference/node_creator.pyx"],
               include_dirs=[numpy.get_include()]),
     Extension("preimage.features.gs_similarity_weights", ["preimage/features/gs_similarity_weights.pyx"],
               include_dirs=[numpy.get_include()])

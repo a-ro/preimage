@@ -3,7 +3,7 @@ __author__ = 'amelie'
 import unittest2
 import numpy
 
-from preimage.inference._bound_calculator import MaxBoundCalculator, OCRMinBoundCalculator
+from preimage.inference.bound_calculator import MaxBoundCalculator, OCRMinBoundCalculator
 
 
 class TestMaxBoundCalculator(unittest2.TestCase):

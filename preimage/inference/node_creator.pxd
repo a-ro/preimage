@@ -1,6 +1,6 @@
 cimport numpy
-from _node cimport MaxNode
-from _bound_calculator cimport BoundCalculator, Bound, FLOAT64_t
+from node cimport MaxNode
+from bound_calculator cimport BoundCalculator, Bound, FLOAT64_t
 
 
 cdef class NodeCreator:

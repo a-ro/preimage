@@ -1,8 +1,8 @@
 __author__ = 'amelie'
 
 import numpy
-from preimage.inference._bound_calculator import OCRMinBoundCalculator, MaxBoundCalculator
-from preimage.inference._node_creator import NodeCreator
+from preimage.inference.bound_calculator import OCRMinBoundCalculator, MaxBoundCalculator
+from preimage.inference.node_creator import NodeCreator
 from preimage.utils.position import compute_position_weights
 
 def get_n_gram_node_creator(n, graph, graph_weights, y_length, n_gram_to_index, n_grams):

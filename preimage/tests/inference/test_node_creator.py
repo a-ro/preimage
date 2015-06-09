@@ -6,9 +6,9 @@ from mock import Mock
 import unittest2
 import numpy
 
-from preimage.inference._bound_calculator import BoundCalculatorMock
-from preimage.inference._node import MaxNode
-from preimage.inference._node_creator import NodeCreator
+from preimage.inference.bound_calculator import BoundCalculatorMock
+from preimage.inference.node import MaxNode
+from preimage.inference.node_creator import NodeCreator
 
 
 class TestNodeCreator(unittest2.TestCase):
