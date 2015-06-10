@@ -118,7 +118,7 @@ class TestGSFeatureSpace(unittest2.TestCase):
                                                   is_normalized=False)
 
         feature_space.compute_weights(y_weights=numpy.array([0.5]), y_length=2)
-        gs_feature_space = feature_space._feature_space
+        gs_feature_space = feature_space.feature_space
 
         numpy.testing.assert_array_equal(gs_feature_space.toarray(), self.feature_space_one_gram_abb.toarray())
 
@@ -128,7 +128,7 @@ class TestGSFeatureSpace(unittest2.TestCase):
 
         feature_space = GenericStringFeatureSpace(self.alphabet, n=1, Y=self.abb, sigma_position=self.small_sigma,
                                                   is_normalized=True)
-        normalized_feature_space = feature_space._feature_space.toarray()
+        normalized_feature_space = feature_space.feature_space.toarray()
 
         numpy.testing.assert_array_equal(normalized_feature_space, self.feature_space_normalized_one_abb)
 
@@ -138,7 +138,7 @@ class TestGSFeatureSpace(unittest2.TestCase):
 
         feature_space = GenericStringFeatureSpace(self.alphabet, n=2, Y=self.abb, sigma_position=self.small_sigma,
                                                   is_normalized=True)
-        normalized_feature_space = feature_space._feature_space.toarray()
+        normalized_feature_space = feature_space.feature_space.toarray()
 
         numpy.testing.assert_array_equal(normalized_feature_space, self.feature_space_normalized_two_gram_abb_abaaa)
 

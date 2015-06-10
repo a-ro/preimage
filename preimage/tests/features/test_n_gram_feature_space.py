@@ -46,7 +46,7 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         self.feature_space_builder_patch.start().return_value = self.feature_space_one_gram_abb
 
         feature_space = NGramFeatureSpace(self.alphabet, n=1, Y=self.abb, is_normalized=True)
-        feature_space_normalized = numpy.array(feature_space._feature_space.todense())
+        feature_space_normalized = numpy.array(feature_space.feature_space.todense())
 
         numpy.testing.assert_array_equal(feature_space_normalized, self.feature_space_normalized_one_gram_abb)
 
@@ -54,7 +54,7 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         self.feature_space_builder_patch.start().return_value = self.feature_space_two_gram_abb
 
         feature_space = NGramFeatureSpace(self.alphabet, n=2, Y=self.abb, is_normalized=True)
-        feature_space_normalized = numpy.array(feature_space._feature_space.todense())
+        feature_space_normalized = numpy.array(feature_space.feature_space.todense())
 
         numpy.testing.assert_array_equal(feature_space_normalized, self.feature_space_normalized_two_gram_abb)
 
@@ -62,7 +62,7 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         self.feature_space_builder_patch.start().return_value = self.feature_space_one_gram_abb_abaaa
 
         feature_space = NGramFeatureSpace(self.alphabet, n=1, Y=self.abb, is_normalized=True)
-        feature_space_normalized = numpy.array(feature_space._feature_space.todense())
+        feature_space_normalized = numpy.array(feature_space.feature_space.todense())
 
         numpy.testing.assert_array_equal(feature_space_normalized, self.feature_space_normalized_one_gram_abb_abaaa)
 
@@ -95,7 +95,7 @@ class TestNGramFeatureSpace(unittest2.TestCase):
         feature_space = NGramFeatureSpace(self.alphabet, n=1, Y=self.abb, is_normalized=False)
 
         feature_space.compute_weights(y_weights=numpy.array([0.5]))
-        n_gram_feature_space = feature_space._feature_space
+        n_gram_feature_space = feature_space.feature_space
 
         numpy.testing.assert_array_equal(n_gram_feature_space.toarray(), self.feature_space_one_gram_abb.toarray())
 

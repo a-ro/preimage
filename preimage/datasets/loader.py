@@ -1,3 +1,5 @@
+"""Loader for datasets and amino acids"""
+
 __author__ = 'amelie'
 
 import pickle
@@ -10,6 +12,17 @@ from preimage.datasets.amino_acid_file import AminoAcidFile
 
 
 class StructuredOutputDataset:
+    """Structured output dataset.
+
+    Attributes
+    ----------
+    X : array, shape = [n_samples, n_features]
+        Vectors, where n_samples is the number of samples and n_features is the number of features.
+    Y : array, shape = [n_samples, ]
+       Target strings.
+    y_lengths : array, shape = [n_samples]
+        Length of each string in Y.
+    """
     def __init__(self, X, Y):
         self.X = X
         self.Y = Y
@@ -17,12 +30,38 @@ class StructuredOutputDataset:
 
 
 class StandardDataset:
+    """Classification or Regression Dataset.
+
+    Attributes
+    ----------
+    X : array, shape = [n_samples, ]
+        Strings, where n_samples is the number of samples.
+    y : array, shape = [n_samples]
+        Target values.
+    """
     def __init__(self, X, y):
         self.X = X
         self.y = y
 
 
 def load_ocr_letters(fold_id=0):
+    """Load the OCR letter dataset.
+
+    This dataset consists of word images with their corresponding word output.
+    The original OCR letter dataset can be downloaded here : http://ai.stanford.edu/~btaskar/ocr/.
+
+    Parameters
+    ----------
+    fold_id : int
+        The id (0-9) of the fold used for training. The remaining examples are used for testing.
+
+    Returns
+    -------
+    train_dataset : StructuredOutputDataset
+        The training dataset.
+    test_dataset : StructuredOutputDataset
+        The testing dataset.
+    """
     data = __load_gz_pickle_file('ocrletters.pickle.gz')
     train_indexes = numpy.where(data['fold_ids'] == fold_id)
     test_indexes = numpy.where(data['fold_ids'] != fold_id)
@@ -41,10 +80,24 @@ def __load_gz_pickle_file(file_name):
 
 
 def load_camps_dataset():
+    """Load the CAMPs dataset consisting of 101 cationic antimicrobial pentadecapeptides.
+
+    Returns
+    -------
+    train_dataset: StandardDataset
+        The training dataset.
+    """
     return __load_peptide_dataset('camps.pickle')
 
 
 def load_bpps_dataset():
+    """Load the BPPs dataset consisting of 31 bradykinin-potentiating pentapeptides.
+
+    Returns
+    -------
+    train_dataset: StandardDataset
+        The training dataset.
+    """
     return __load_peptide_dataset('bpps.pickle')
 
 
@@ -63,6 +116,21 @@ def __load_pickle_file(file_name):
 
 
 def load_amino_acids_and_descriptors(file_name=AminoAcidFile.blosum62_natural):
+    """Load amino acids and descriptors
+
+    Parameters
+    ----------
+    file_name : string
+        file name of the amino acid matrix.
+
+    Returns
+    -------
+    amino_acids: list
+        A list of amino acids (letters).
+    descriptors: array, shape = [n_amino_acids, n_amino_acids]
+        The substitution cost of each amino acid with all the other amino acids, where n_amino_acids is the number of
+        amino acids.
+    """
     path_to_file = join(dirname(__file__), 'amino_acid_matrix', file_name)
     with open(path_to_file, 'r') as data_file:
         lines = data_file.readlines()
