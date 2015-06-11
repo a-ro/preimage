@@ -24,6 +24,21 @@ class EulerianPath:
         True if merges path when the graph is not connected, False otherwise (choose the longest path instead).
     min_n_gram_count : int
         The minimum number of n-gram in the string to predict.
+
+    Notes
+    -----
+    This is an implementation of the eulerian path algorithm as defined in [1]_. However, there are multiple ways to
+    merge the paths together when the graph is not connected. We chose to find the longest path and merge the remaining
+    paths after, but this might differ from what Cortes et al. did in their work. The n-gram kernel also has a
+    non-unique pre-image. For instance if the string to predict has the n-grams "ab" and "ba" both "aba" and "bab" are
+    valid pre-image. In that case we chose randomly a pre-image among the possible ones (this is done by visiting the
+    edges and the nodes in a random order). Note that the code could also be faster but we only cared about implementing
+    the algorithm correctly.
+
+    References
+    ----------
+    .. [1] Cortes, Corinna, Mehryar Mohri, and Jason Weston. "A general regression framework for learning
+       string-to-string mappings." Predicting Structured Data (2007): 143-168.
     """
 
     def __init__(self, alphabet, n, min_length=1, is_merging_path=True):
