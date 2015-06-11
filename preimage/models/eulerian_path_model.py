@@ -10,6 +10,7 @@ from preimage.utils.alphabet import get_n_gram_to_index, get_n_grams
 
 
 class EulerianPathModel(Model):
+
     def __init__(self, alphabet, n, is_using_length=True, seed=42):
         Model.__init__(self, alphabet, n, is_using_length)
         self._graph_builder = GraphBuilder(alphabet, n)

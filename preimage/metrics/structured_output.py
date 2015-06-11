@@ -1,3 +1,5 @@
+"""Structured output metrics"""
+
 __author__ = 'amelie'
 
 import numpy
@@ -5,6 +7,22 @@ from jellyfish import levenshtein_distance
 
 
 def zero_one_loss(Y_true, Y_predicted):
+    """Zero one loss.
+
+    Returns the number of incorrectly predicted strings on the total number of strings.
+
+    Parameters
+    ----------
+    Y_true : array, shape = [n_samples, ]
+        Ground truth (correct) strings.
+    Y_predicted : array, shape = [n_samples, ]
+        Predicted strings, as returned by the structured output predictor.
+
+    Returns
+    -------
+    loss : float
+        The number of incorrectly predicted strings on the total number of strings.
+    """
     Y_true = numpy.array(Y_true)
     Y_predicted = numpy.array(Y_predicted)
     __check_same_number_of_y(Y_true, Y_predicted)
@@ -19,6 +37,23 @@ def __get_n_errors_for_each_y_predicted(Y_true, Y_predicted):
 
 
 def hamming_loss(Y_true, Y_predicted):
+    """Average hamming loss.
+
+    Computes the average fraction of incorrectly predicted letters in the predicted strings. The ground truth and the
+    predicted strings must have the same length.
+
+    Parameters
+    ----------
+    Y_true : array, shape = [n_samples, ]
+        Ground truth (correct) strings.
+    Y_predicted : array, shape = [n_samples, ]
+        Predicted strings, as returned by the structured output predictor.
+
+    Returns
+    -------
+    loss : float
+        The average fraction of incorrectly predicted letters.
+    """
     Y_true = numpy.array(Y_true)
     Y_predicted = numpy.array(Y_predicted)
     __check_same_number_of_y(Y_true, Y_predicted)
@@ -47,6 +82,22 @@ def __get_n_letter_errors_for_each_y_predicted(Y_true, Y_predicted, y_lengths):
 
 
 def levenshtein_loss(Y_true, Y_predicted):
+    """Average levenshtein loss.
+
+    Computes the average fraction of levenshtein distance between the ground truth strings and the predicted strings.
+
+    Parameters
+    ----------
+    Y_true : array, shape = [n_samples, ]
+        Ground truth (correct) strings.
+    Y_predicted : array, shape = [n_samples, ]
+        Predicted strings, as returned by the structured output predictor.
+
+    Returns
+    -------
+    loss : float
+        The average fraction of levenshtein distance.
+    """
     Y_true = numpy.array(Y_true)
     Y_predicted = numpy.array(Y_predicted)
     __check_same_number_of_y(Y_true, Y_predicted)
