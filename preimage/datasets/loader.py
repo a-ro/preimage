@@ -19,7 +19,7 @@ class StructuredOutputDataset:
     X : array, shape = [n_samples, n_features]
         Vectors, where n_samples is the number of samples and n_features is the number of features.
     Y : array, shape = [n_samples, ]
-       Target strings.
+        Target strings.
     y_lengths : array, shape = [n_samples]
         Length of each string in Y.
     """
@@ -53,14 +53,14 @@ def load_ocr_letters(fold_id=0):
     Parameters
     ----------
     fold_id : int
-        The id (0-9) of the fold used for training. The remaining examples are used for testing.
+        Id (0-9) of the fold used for training. The remaining examples are used for testing.
 
     Returns
     -------
     train_dataset : StructuredOutputDataset
-        The training dataset.
+        Training dataset.
     test_dataset : StructuredOutputDataset
-        The testing dataset.
+        Testing dataset.
     """
     data = __load_gz_pickle_file('ocrletters.pickle.gz')
     train_indexes = numpy.where(data['fold_ids'] == fold_id)
@@ -85,7 +85,7 @@ def load_camps_dataset():
     Returns
     -------
     train_dataset: StandardDataset
-        The training dataset.
+        Training dataset.
     """
     return __load_peptide_dataset('camps.pickle')
 
@@ -96,7 +96,7 @@ def load_bpps_dataset():
     Returns
     -------
     train_dataset: StandardDataset
-        The training dataset.
+        Training dataset.
     """
     return __load_peptide_dataset('bpps.pickle')
 
@@ -128,7 +128,7 @@ def load_amino_acids_and_descriptors(file_name=AminoAcidFile.blosum62_natural):
     amino_acids: list
         A list of amino acids (letters).
     descriptors: array, shape = [n_amino_acids, n_amino_acids]
-        The substitution cost of each amino acid with all the other amino acids, where n_amino_acids is the number of
+        Substitution cost of each amino acid with all the other amino acids, where n_amino_acids is the number of
         amino acids.
     """
     path_to_file = join(dirname(__file__), 'amino_acid_matrix', file_name)

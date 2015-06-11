@@ -15,9 +15,9 @@ class WeightedDegreeFeatureSpace:
     Attributes
     ----------
     n : int
-        n-gram length
+        N-gram length.
     max_n_gram_count : int
-        The number of n-grams in the training string of highest length.
+        Number of n-grams in the training string of highest length.
     feature_space : sparse matrix, shape = [n_samples, max_n_gram_count * len(alphabet)**n]
         Sparse matrix representation of the n-grams in each training string, where n_samples is the number of training
         samples.

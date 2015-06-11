@@ -1,8 +1,4 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-
-
-# Original GS kernel Code was made by Sebastien Giguère
+__author__ = 'amelie'
 
 import numpy
 
@@ -14,8 +10,27 @@ from preimage.utils.position import compute_position_weights_matrix
 from preimage.utils.alphabet import transform_strings_to_integer_lists
 
 
-# GS kernel modified for string instead of amino acids (no n_gram similarity -> sigma_c = 0, not blended only n_gram)
 def element_wise_kernel(X, sigma_position, n, alphabet):
+    """Compute the similarity of each string of X with itself in the Generic String kernel.
+
+    Takes only in account the position penalties and the n-gram of length n. No n-gram penalties (no sigma_c).
+
+    Parameters
+    ----------
+    X : array, shape = [n_samples]
+        Strings.
+    sigma_position : float
+        Controls the penalty incurred when two n-grams are not sharing the same position.
+    n : int
+        N-gram length.
+    alphabet : list
+        List of letters.
+
+    Returns
+    -------
+    kernel : array, shape = [n_samples]
+        Similarity of each string with itself in the GS kernel.
+    """
     X = numpy.array(X)
     x_lengths = numpy.array([len(x) for x in X], dtype=numpy.int64)
     max_length = numpy.max(x_lengths) - n + 1

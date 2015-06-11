@@ -26,7 +26,7 @@ class NGramFeatureSpace:
         alphabet : list
             list of letters
         n : int
-            n-gram length
+            N-gram length.
         Y : array, [n_samples, ]
             The training strings.
         is_normalized : bool

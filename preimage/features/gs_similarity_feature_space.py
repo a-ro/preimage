@@ -15,7 +15,7 @@ class GenericStringSimilarityFeatureSpace:
     Attributes
     ----------
     n : int
-        n-gram length.
+        N-gram length.
     is_normalized : bool
         True if the feature space should be normalized, False otherwise.
     max_train_length : int

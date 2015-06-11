@@ -10,19 +10,69 @@ from preimage.exceptions.shape import InvalidShapeError
 
 
 class EulerianPath:
+    """Eulerian path algorithm for the pre-image of the n-gram kernel
+
+    Solves the pre-image of the n-gram kernel by finding an Eulerian circuit in a graph. Since the n-gram weights are
+    rounded to integer values, this might predict an approximation of the exact pre-image. However, this algorithm is
+    faster than the branch and bound search.
+
+    Attributes
+    ----------
+    n : int
+        N-gram length.
+    is_merging_path : bool
+        True if merges path when the graph is not connected, False otherwise (choose the longest path instead).
+    min_n_gram_count : int
+        The minimum number of n-gram in the string to predict.
+    """
+
     def __init__(self, alphabet, n, min_length=1, is_merging_path=True):
-        self._n = int(n)
-        self._is_merging_path = is_merging_path
-        self._min_n_gram_count = 1 if min_length <= self._n else min_length - self._n + 1
-        self._index_to_n_gram = get_index_to_n_gram(alphabet, self._n)
-        self._n_gram_count = len(alphabet) ** self._n
-        self._verify_n(self._n)
+        """Initialize the eulerian path algorithm
+
+        Parameters
+        ----------
+        alphabet : list
+            list of letters.
+        n : int
+            n-gram length.
+        min_length :int
+            Minimum length of the predicted string.
+        is_merging_path : bool
+            True if merges path when the graph is not connected, False otherwise (choose the longest path instead).
+        """
+        self.n = int(n)
+        self.is_merging_path = is_merging_path
+        self.min_n_gram_count = 1 if min_length <= self.n else min_length - self.n + 1
+        self._index_to_n_gram = get_index_to_n_gram(alphabet, self.n)
+        self._n_gram_count = len(alphabet) ** self.n
+        self._verify_n(self.n)
 
     def _verify_n(self, n):
         if n <= 1:
             raise InvalidNGramLengthError(n, 1)
 
     def find_eulerian_path(self, n_gram_weights, y_length=None, thresholds=None):
+        """Solve the pre-image of n-gram kernel.
+
+        Rounds the n_gram_weights to integer values, creates a graph with the predicted n-grams, and predicts the output
+        string by finding an eulerian path in this graph. If the graph is not connected, it will merge multiple paths
+        together when is_merging_path is True, and predict the longest path otherwise.
+
+        Parameters
+        ----------
+        n_gram_weights : array, shape=[len(alphabet)**n]
+            Weight of each n-gram.
+        y_length : int or None
+            Length of the string to predict. None if thresholds are used.
+        thresholds :array, shape=[len(alphabet)**n] or None
+            Threshold value for each n-gram above which the n_gram_weights are rounded to one.
+            None if y_length is given.
+
+        Returns
+        -------
+        y: string
+            The predicted string.
+        """
         self._verify_weights_length_thresholds(n_gram_weights, y_length, thresholds)
         rounded_weights = self._round_weights(n_gram_weights, thresholds, y_length)
         n_gram_indexes = numpy.where(rounded_weights > 0)[0]
@@ -35,8 +85,8 @@ class EulerianPath:
     def _verify_weights_length_thresholds(self, n_gram_weights, y_length, thresholds):
         if n_gram_weights.shape[0] != self._n_gram_count:
             raise InvalidShapeError('n_gram_weights', n_gram_weights.shape, [(self._n_gram_count,)])
-        if y_length is not None and y_length < self._n:
-            raise InvalidYLengthError(self._n, y_length)
+        if y_length is not None and y_length < self.n:
+            raise InvalidYLengthError(self.n, y_length)
         if thresholds is not None and thresholds.shape[0] != self._n_gram_count:
             raise InvalidShapeError('thresholds', thresholds.shape, [(self._n_gram_count,)])
         if thresholds is None and y_length is None:
@@ -46,7 +96,7 @@ class EulerianPath:
         if y_length is None:
             rounded_weights = self._round_weights_with_thresholds(n_gram_weights, thresholds)
         else:
-            n_gram_count = y_length - self._n + 1
+            n_gram_count = y_length - self.n + 1
             rounded_weights = self._round_weights_to_n_gram_count(n_gram_weights, n_gram_count)
         return rounded_weights
 
@@ -71,11 +121,11 @@ class EulerianPath:
         rounded_weights = numpy.asarray(weights > thresholds, dtype=numpy.int)
         non_zero_weight_count = rounded_weights.sum()
         # Avoid having zero n gram predicted
-        if non_zero_weight_count < self._min_n_gram_count:
-            kth_indexes = numpy.arange(0, self._min_n_gram_count)
-            best_weight_indexes = numpy.argpartition(-weights, kth_indexes)[0:self._min_n_gram_count]
+        if non_zero_weight_count < self.min_n_gram_count:
+            kth_indexes = numpy.arange(0, self.min_n_gram_count)
+            best_weight_indexes = numpy.argpartition(-weights, kth_indexes)[0:self.min_n_gram_count]
             best_zero_weight_indexes = best_weight_indexes[rounded_weights[best_weight_indexes] == 0]
-            rounded_weights[best_zero_weight_indexes[0:self._min_n_gram_count - non_zero_weight_count]] = 1
+            rounded_weights[best_zero_weight_indexes[0:self.min_n_gram_count - non_zero_weight_count]] = 1
         return rounded_weights
 
     def _get_n_grams_in_selected_indexes(self, selected_n_gram_indexes, rounded_weights):
@@ -85,7 +135,7 @@ class EulerianPath:
 
     def _find_y_corresponding_to_n_grams(self, n_grams):
         nodes, leaving_edges, marked_edges = self._get_nodes_and_edges(n_grams)
-        if self._is_merging_path:
+        if self.is_merging_path:
             path = self._merge_best_paths(nodes, leaving_edges, marked_edges, n_grams)
         else:
             path, marked_edges = self._find_best_path(nodes, leaving_edges, marked_edges, n_grams)
@@ -93,7 +143,7 @@ class EulerianPath:
         return y
 
     def _get_nodes_and_edges(self, n_grams):
-        nodes = numpy.unique([n_gram[j:j + self._n - 1] for n_gram in n_grams for j in range(2)])
+        nodes = numpy.unique([n_gram[j:j + self.n - 1] for n_gram in n_grams for j in range(2)])
         nodes = nodes[numpy.random.permutation(nodes.shape[0])]
         random_n_grams = n_grams[numpy.random.permutation(n_grams.shape[0])]
         leaving_edges = {node: [] for node in nodes}
@@ -103,8 +153,8 @@ class EulerianPath:
 
     def _update_leaving_and_marked_edges(self, leaving_edges, marked_edges, random_n_grams):
         for n_gram in random_n_grams:
-            leaving_edges[n_gram[0:self._n - 1]].append(n_gram[1:])
-            marked_edges[n_gram[0:self._n - 1]].append(False)
+            leaving_edges[n_gram[0:self.n - 1]].append(n_gram[1:])
+            marked_edges[n_gram[0:self.n - 1]].append(False)
 
     def _merge_best_paths(self, nodes, leaving_edges, marked_edges, n_grams):
         path = []

@@ -17,11 +17,11 @@ def build_feature_space_without_positions(alphabet, n, Y):
     Parameters
     ----------
     alphabet : list
-        list of letters
+        List of letters.
     n : int
-        n-gram length
+        N-gram length.
     Y : array, [n_samples, ]
-        The training strings.
+        Training strings.
 
     Returns
     -------

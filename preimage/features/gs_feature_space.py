@@ -17,7 +17,7 @@ class GenericStringFeatureSpace:
     Attributes
     ----------
     n : int
-        n-gram length
+        N-gram length.
     sigma_position : float
         Parameter of the Generic String Kernel controlling the penalty incurred when two n-grams are not sharing the
         same position.
