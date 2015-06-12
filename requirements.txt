@@ -1,0 +1,7 @@
+numpy
+scipy
+unittest2
+mock
+jellyfish
+Cython>=0.22
+scikit-learn>=0.16
