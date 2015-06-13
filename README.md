@@ -5,7 +5,7 @@ Algorithms for the Hard Pre-Image Problem of String Kernels and the General Prob
 Download the paper at : http://jmlr.org/proceedings/papers/v37/giguere15.pdf
 
 # Installation
-Download the code. Go in the main preimage folder and compile the cython: <br />
+Download the code. Install the packages listed in the requirements.txt file. Then go in the main preimage folder and compile the cython: <br />
 ```
 python setup.py build_ext -i 
 ```
