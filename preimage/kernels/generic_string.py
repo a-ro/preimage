@@ -65,12 +65,12 @@ class GenericStringKernel:
 
     Notes
     -----
-    See http://graal.ift.ulaval.ca/bioinformatics/gs-kernel/ for the original code developed by Sébastien Giguère [1]_.
+    See http://graal.ift.ulaval.ca/bioinformatics/gs-kernel/ for the original code developed by Sebastien Giguere [1]_.
 
     References
     ----------
-    .. [1] Sébastien Giguère, Mario Marchand, François Laviolette, Alexandre Drouin, and Jacques Corbeil. “Learning a
-       peptide-protein binding affinity predictor with kernel ridge regression.” BMC bioinformatics 14, no. 1 (2013):
+    .. [1] Sebastien Giguere, Mario Marchand, Francois Laviolette, Alexandre Drouin, and Jacques Corbeil. "Learning a
+       peptide-protein binding affinity predictor with kernel ridge regression." BMC bioinformatics 14, no. 1 (2013):
        82.
     """
     def __init__(self, amino_acid_file_name=AminoAcidFile.blosum62_natural, sigma_position=1.0, sigma_amino_acid=1.0,
