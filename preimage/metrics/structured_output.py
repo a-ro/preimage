@@ -119,5 +119,12 @@ def __get_max_length_of_each_tuple_y_true_y_predicted(Y_true, Y_predicted):
 
 
 def __get_levenshtein_distance_for_each_y_predicted(Y_true, Y_predicted):
-    distances = [levenshtein_distance(y_true, y_predicted) for (y_true, y_predicted) in zip(Y_true, Y_predicted)]
+    distances = [levenshtein_distance(__decode(y_true), __decode(y_predicted)) for (y_true, y_predicted) in
+                 zip(Y_true, Y_predicted)]
     return numpy.array(distances)
+
+
+def __decode(string):
+    if isinstance(string, bytes):
+        string = string.decode('utf-8')
+    return string
